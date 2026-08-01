@@ -1,2 +1,6 @@
-# games
-games for kids education 
+# Games
+
+## Available
+- 🎨 Colour Fun (`colours/index.html`)
+
+More games coming soon.
