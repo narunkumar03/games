@@ -2,392 +2,174 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<title>Colour Fun!</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kids Brain Games - Fun Learning Games for Children</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FFF8F0;--panel:#FFFFFF;--ink:#2D2A3E;--muted:#7B7599;
+  --accent:#FF6B6B;--green:#36C48A;--yellow:#FFD166;--purple:#845EF7;
+  --radius:22px;--shadow:0 8px 32px rgba(45,42,62,.12);
+}
+html,body{
+  min-height:100%;font-family:Arial,Helvetica,sans-serif;
+  background:var(--bg);color:var(--ink);overflow-x:hidden;
+}
+body{
+  background-image:
+    radial-gradient(circle at 10% 15%, rgba(255,107,107,.08) 0%, transparent 40%),
+    radial-gradient(circle at 90% 10%, rgba(132,94,247,.08) 0%, transparent 40%),
+    radial-gradient(circle at 50% 90%, rgba(54,196,138,.08) 0%, transparent 45%);
+}
 
-  body {
-    font-family: 'Helvetica Rounded', 'Arial Rounded MT Bold', Arial, sans-serif;
-    background: #FFF9F0;
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 16px env(safe-area-inset-bottom, 16px);
-    overflow: hidden;
-  }
+header{text-align:center;padding:44px 16px 8px}
+header .logo{font-size:3rem;display:block;margin-bottom:6px}
+header h1{
+  font-size:clamp(2.1rem,7vw,3.4rem);font-weight:900;letter-spacing:-1px;
+  background:linear-gradient(135deg,#FF6B6B 0%,#845EF7 50%,#36C48A 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+header p{color:var(--muted);font-size:1.1rem;margin-top:8px;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.5}
 
-  header {
-    text-align: center;
-    padding-top: env(safe-area-inset-top, 8px);
-  }
+#intro{max-width:760px;margin:28px auto 0;padding:0 16px;text-align:center}
+#intro p{color:var(--muted);font-size:1rem;line-height:1.7}
+#benefits{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:22px}
+.benefit{
+  background:var(--panel);border-radius:14px;box-shadow:var(--shadow);
+  padding:10px 18px;font-size:.88rem;font-weight:800;color:var(--ink);
+  display:flex;align-items:center;gap:8px;
+}
+.benefit .ic{font-size:1.2rem}
 
-  h1 {
-    font-size: 2rem;
-    letter-spacing: -0.5px;
-    color: #2D2D2D;
-  }
+#games{
+  max-width:1080px;margin:40px auto;padding:0 20px;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:26px;
+}
+.card{
+  background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);
+  overflow:hidden;display:flex;flex-direction:column;
+  transition:transform .2s ease, box-shadow .2s ease;
+  text-decoration:none;color:inherit;
+}
+.card:hover{transform:translateY(-6px);box-shadow:0 16px 42px rgba(45,42,62,.18)}
+.card-top{padding:34px 24px 20px;text-align:center;position:relative}
+.card-top .icon{font-size:3.6rem;display:block;margin-bottom:6px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.12))}
+.card1 .card-top{background:linear-gradient(160deg,#FFF3E0,#FFE0E0)}
+.card2 .card-top{background:linear-gradient(160deg,#F0EBFF,#E0D6FF)}
+.card3 .card-top{background:linear-gradient(160deg,#E0F7EE,#D0F0E0)}
 
-  .score-bar {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    margin-top: 6px;
-    font-size: 0.95rem;
-    color: #555;
-    font-weight: 600;
-  }
+.card-top h2{font-size:1.5rem;font-weight:900;margin-top:6px}
+.badge{display:inline-block;font-size:.7rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em;padding:4px 12px;border-radius:99px;margin-top:8px}
+.card1 .badge{background:#FFD166;color:#7c5a00}
+.card2 .badge{background:#D6C7FF;color:#4a2ea3}
+.card3 .badge{background:#B7F0D6;color:#0d6b45}
 
-  .score-bar span { color: #2D2D2D; }
+.card-body{padding:16px 24px 26px;flex:1;display:flex;flex-direction:column}
+.card-body p{color:var(--muted);font-size:.95rem;line-height:1.5;margin-bottom:16px;flex:1}
 
-  /* Big colour blob */
-  .colour-stage {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 14px;
-    flex: 1;
-    justify-content: center;
-  }
+.skills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.skill-tag{font-size:.72rem;font-weight:800;background:#F3F0FA;color:#6741d9;padding:4px 10px;border-radius:8px}
 
-  .blob {
-    width: min(56vw, 220px);
-    height: min(56vw, 220px);
-    border-radius: 50%;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.18);
-    transition: transform 0.15s ease, opacity 0.2s;
-    animation: pop 0.35s cubic-bezier(.34,1.56,.64,1) forwards;
-  }
+.play-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  background:linear-gradient(135deg,#845EF7,#FF6B6B);color:#fff;
+  font-size:1rem;font-weight:900;padding:13px;border-radius:14px;
+  box-shadow:0 6px 18px rgba(132,94,247,.3);
+  transition:transform .15s, box-shadow .15s;
+}
+.card:hover .play-btn{transform:translateY(-2px);box-shadow:0 10px 26px rgba(132,94,247,.4)}
 
-  @keyframes pop {
-    from { transform: scale(0.5); opacity: 0; }
-    to   { transform: scale(1);   opacity: 1; }
-  }
+footer{text-align:center;padding:36px 16px 46px;color:var(--muted);font-size:.85rem}
+footer .heart{color:var(--accent)}
 
-  .question {
-    font-size: 1.35rem;
-    color: #2D2D2D;
-    font-weight: 700;
-    text-align: center;
-  }
-
-  /* Answer buttons */
-  .choices {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    width: 100%;
-    max-width: 360px;
-  }
-
-  .choice-btn {
-    padding: 18px 8px;
-    border: none;
-    border-radius: 20px;
-    font-size: 1.15rem;
-    font-weight: 800;
-    color: #fff;
-    cursor: pointer;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.25);
-    box-shadow: 0 6px 0 rgba(0,0,0,0.15);
-    transition: transform 0.1s, box-shadow 0.1s;
-    letter-spacing: 0.3px;
-    active-state: none;
-  }
-
-  .choice-btn:active {
-    transform: translateY(4px);
-    box-shadow: 0 2px 0 rgba(0,0,0,0.15);
-  }
-
-  .choice-btn.correct {
-    animation: correct 0.4s ease forwards;
-  }
-
-  .choice-btn.wrong {
-    animation: wrong 0.35s ease forwards;
-  }
-
-  @keyframes correct {
-    0%   { transform: scale(1); }
-    40%  { transform: scale(1.12); }
-    100% { transform: scale(1); }
-  }
-
-  @keyframes wrong {
-    0%,100% { transform: translateX(0); }
-    20%     { transform: translateX(-8px); }
-    60%     { transform: translateX(8px); }
-  }
-
-  /* Result overlay */
-  .result-msg {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0);
-    font-size: 3.5rem;
-    z-index: 10;
-    pointer-events: none;
-    transition: transform 0.2s cubic-bezier(.34,1.56,.64,1);
-  }
-
-  .result-msg.show {
-    transform: translate(-50%, -50%) scale(1);
-  }
-
-  /* Confetti dots */
-  .confetti-wrap {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 5;
-    overflow: hidden;
-  }
-
-  .dot {
-    position: absolute;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    opacity: 0;
-    animation: fall 0.9s ease-out forwards;
-  }
-
-  @keyframes fall {
-    0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
-    100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
-  }
-
-  /* End screen */
-  .end-screen {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-    flex: 1;
-    text-align: center;
-  }
-
-  .end-screen.show { display: flex; }
-  .colour-stage.hide, .choices.hide, .score-bar.hide { display: none; }
-
-  .end-emoji { font-size: 4rem; }
-
-  .end-title {
-    font-size: 2rem;
-    font-weight: 900;
-    color: #2D2D2D;
-  }
-
-  .end-sub {
-    font-size: 1.1rem;
-    color: #666;
-  }
-
-  .play-again {
-    margin-top: 8px;
-    padding: 18px 48px;
-    background: #FF6B6B;
-    color: #fff;
-    border: none;
-    border-radius: 50px;
-    font-size: 1.25rem;
-    font-weight: 800;
-    cursor: pointer;
-    box-shadow: 0 6px 0 #cc4444;
-    transition: transform 0.1s, box-shadow 0.1s;
-  }
-
-  .play-again:active {
-    transform: translateY(4px);
-    box-shadow: 0 2px 0 #cc4444;
-  }
-
-  .stars {
-    font-size: 2rem;
-    letter-spacing: 6px;
-  }
+@media(max-width:520px){
+  header{padding:32px 16px 4px}
+  #games{margin:30px auto}
+}
 </style>
 </head>
 <body>
 
 <header>
-  <h1>🎨 Colour Fun!</h1>
-  <div class="score-bar" id="scoreBar">
-    <div>⭐ <span id="scoreVal">0</span></div>
-    <div>🔢 <span id="qNum">1</span> / 10</div>
-  </div>
+  <span class="logo">&#127881;</span>
+  <h1>Kids Brain Games</h1>
+  <p>Fun, colourful mini-games that help children build memory, focus, and pattern recognition — one playful round at a time.</p>
 </header>
 
-<div class="colour-stage" id="stage">
-  <div class="blob" id="blob"></div>
-  <div class="question">What colour is this?</div>
+<div id="intro">
+  <p>
+    Each game below is designed to be simple enough for young children to pick up in seconds,
+    while still offering enough challenge to keep them engaged. Play in short bursts, track
+    your score, and try to beat your best round!
+  </p>
+  <div id="benefits">
+    <div class="benefit"><span class="ic">&#129504;</span> Builds memory</div>
+    <div class="benefit"><span class="ic">&#127919;</span> Improves focus</div>
+    <div class="benefit"><span class="ic">&#9889;</span> Sharpens reaction speed</div>
+    <div class="benefit"><span class="ic">&#128200;</span> Builds pattern recognition</div>
+    <div class="benefit"><span class="ic">&#128241;</span> Works on any device</div>
+  </div>
 </div>
 
-<div class="choices" id="choices"></div>
+<div id="games">
 
-<div class="end-screen" id="endScreen">
-  <div class="end-emoji" id="endEmoji">🌟</div>
-  <div class="end-title" id="endTitle">Amazing!</div>
-  <div class="stars" id="endStars"></div>
-  <div class="end-sub" id="endSub"></div>
-  <button class="play-again" onclick="startGame()">Play Again 🎉</button>
+  <a class="card card1" href="colour-game.html">
+    <div class="card-top">
+      <span class="icon">&#127912;</span>
+      <h2>Colour Quest</h2>
+      <span class="badge">Colour Identification</span>
+    </div>
+    <div class="card-body">
+      <p>Look at the colour blob and pick its name from four choices. Speed and accuracy build up your streak for bonus points!</p>
+      <div class="skills">
+        <span class="skill-tag">Colour recognition</span>
+        <span class="skill-tag">Vocabulary</span>
+        <span class="skill-tag">Quick thinking</span>
+      </div>
+      <div class="play-btn">Play Now &#9654;</div>
+    </div>
+  </a>
+
+  <a class="card card2" href="shape-sorter.html">
+    <div class="card-top">
+      <span class="icon">&#129513;</span>
+      <h2>Shape Sorter</h2>
+      <span class="badge">Drag &amp; Drop</span>
+    </div>
+    <div class="card-body">
+      <p>Drag each shape into the outline that matches it. A hands-on game that trains the eye to spot shapes quickly and precisely.</p>
+      <div class="skills">
+        <span class="skill-tag">Pattern recognition</span>
+        <span class="skill-tag">Hand-eye coordination</span>
+        <span class="skill-tag">Shape memory</span>
+      </div>
+      <div class="play-btn">Play Now &#9654;</div>
+    </div>
+  </a>
+
+  <a class="card card3" href="memory-match.html">
+    <div class="card-top">
+      <span class="icon">&#129504;</span>
+      <h2>Memory Match</h2>
+      <span class="badge">Card Flip</span>
+    </div>
+    <div class="card-body">
+      <p>Flip two cards at a time and try to find matching pairs. Fewer moves means a sharper memory and a higher star rating!</p>
+      <div class="skills">
+        <span class="skill-tag">Short-term memory</span>
+        <span class="skill-tag">Concentration</span>
+        <span class="skill-tag">Visual recall</span>
+      </div>
+      <div class="play-btn">Play Now &#9654;</div>
+    </div>
+  </a>
+
 </div>
 
-<div class="confetti-wrap" id="confettiWrap"></div>
-<div class="result-msg" id="resultMsg"></div>
+<footer>
+  Made with <span class="heart">&#9829;</span> for curious young minds.
+</footer>
 
-<script>
-const COLOURS = [
-  { name: "Red",    hex: "#E63946", btn: "#E63946" },
-  { name: "Blue",   hex: "#457B9D", btn: "#457B9D" },
-  { name: "Green",  hex: "#2D9D3A", btn: "#2D9D3A" },
-  { name: "Yellow", hex: "#F4C430", btn: "#C8A000" },
-  { name: "Orange", hex: "#F4841D", btn: "#E07010" },
-  { name: "Purple", hex: "#9B5DE5", btn: "#7A3CC8" },
-  { name: "Pink",   hex: "#F06C9B", btn: "#D44D80" },
-  { name: "Brown",  hex: "#A0522D", btn: "#7A3A1A" },
-  { name: "Black",  hex: "#2D2D2D", btn: "#1A1A1A" },
-  { name: "White",  hex: "#F0F0F0", btn: "#AAAAAA" },
-];
-
-let score = 0, qIndex = 0, total = 10, locked = false, questions = [];
-
-function shuffle(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
-
-function startGame() {
-  score = 0; qIndex = 0; locked = false;
-  questions = shuffle([...COLOURS]).slice(0, total);
-  document.getElementById('endScreen').classList.remove('show');
-  document.getElementById('stage').classList.remove('hide');
-  document.getElementById('choices').classList.remove('hide');
-  document.getElementById('scoreBar').classList.remove('hide');
-  updateScore();
-  nextQuestion();
-}
-
-function nextQuestion() {
-  if (qIndex >= total) { endGame(); return; }
-
-  locked = false;
-  const q = questions[qIndex];
-
-  // Animate blob
-  const blob = document.getElementById('blob');
-  blob.style.animation = 'none';
-  blob.offsetHeight; // reflow
-  blob.style.animation = '';
-  blob.style.background = q.hex;
-
-  document.getElementById('qNum').textContent = qIndex + 1;
-
-  // Build 4 choices: correct + 3 random wrong
-  const wrong = shuffle(COLOURS.filter(c => c.name !== q.name)).slice(0, 3);
-  const opts = shuffle([q, ...wrong]);
-
-  const container = document.getElementById('choices');
-  container.innerHTML = '';
-  opts.forEach(opt => {
-    const btn = document.createElement('button');
-    btn.className = 'choice-btn';
-    btn.textContent = opt.name;
-    btn.style.background = opt.btn;
-    btn.onclick = () => handleAnswer(btn, opt.name === q.name);
-    container.appendChild(btn);
-  });
-}
-
-function handleAnswer(btn, correct) {
-  if (locked) return;
-  locked = true;
-
-  if (correct) {
-    score++;
-    btn.classList.add('correct');
-    showResult('⭐', true);
-    confetti();
-  } else {
-    btn.classList.add('wrong');
-    showResult('😅', false);
-    // Highlight correct answer
-    document.querySelectorAll('.choice-btn').forEach(b => {
-      const q = questions[qIndex];
-      if (b.textContent === q.name) b.style.outline = '4px solid #2D2D2D';
-    });
-  }
-
-  updateScore();
-  qIndex++;
-  setTimeout(() => {
-    clearResult();
-    nextQuestion();
-  }, 900);
-}
-
-function showResult(emoji, good) {
-  const el = document.getElementById('resultMsg');
-  el.textContent = emoji;
-  el.classList.add('show');
-}
-
-function clearResult() {
-  document.getElementById('resultMsg').classList.remove('show');
-}
-
-function updateScore() {
-  document.getElementById('scoreVal').textContent = score;
-}
-
-function confetti() {
-  const wrap = document.getElementById('confettiWrap');
-  const colors = ['#FF6B6B','#F4C430','#2D9D3A','#9B5DE5','#457B9D','#F06C9B'];
-  wrap.innerHTML = '';
-  for (let i = 0; i < 22; i++) {
-    const dot = document.createElement('div');
-    dot.className = 'dot';
-    dot.style.left = Math.random() * 100 + 'vw';
-    dot.style.top = '0';
-    dot.style.background = colors[Math.floor(Math.random() * colors.length)];
-    dot.style.animationDelay = Math.random() * 0.4 + 's';
-    dot.style.width = dot.style.height = (8 + Math.random() * 10) + 'px';
-    wrap.appendChild(dot);
-  }
-  setTimeout(() => wrap.innerHTML = '', 1400);
-}
-
-function endGame() {
-  document.getElementById('stage').classList.add('hide');
-  document.getElementById('choices').classList.add('hide');
-  document.getElementById('scoreBar').classList.add('hide');
-  document.getElementById('endScreen').classList.add('show');
-
-  const pct = score / total;
-  let emoji, title, sub;
-  if (pct === 1)       { emoji='🏆'; title='Perfect Score!';    sub='You know ALL the colours! Amazing!'; }
-  else if (pct >= 0.7) { emoji='🌟'; title='Well Done!';        sub='You\'re a colour superstar!'; }
-  else if (pct >= 0.4) { emoji='😊'; title='Good Try!';         sub='Keep practising — you\'re getting there!'; }
-  else                 { emoji='🌈'; title='Keep Going!';        sub='Colours are fun — try again!'; }
-
-  document.getElementById('endEmoji').textContent = emoji;
-  document.getElementById('endTitle').textContent = title;
-  document.getElementById('endSub').textContent = `You got ${score} out of ${total}! ${sub}`;
-  document.getElementById('endStars').textContent = '⭐'.repeat(Math.round(pct * 5));
-
-  if (pct >= 0.7) confetti();
-}
-
-startGame();
-</script>
 </body>
 </html>
