@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Number Names - Kids Game</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FFF8F0;--panel:#FFFFFF;--ink:#2D2A3E;--muted:#7B7599;
+  --accent:#FF6B6B;--green:#36C48A;--yellow:#FFD166;--purple:#845EF7;
+  --radius:20px;--shadow:0 8px 32px rgba(45,42,62,.12);
+}
+html,body{height:100%;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink);overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+#cc{position:fixed;inset:0;pointer-events:none;z-index:999}
+header{text-align:center;padding:24px 16px 0}
+header h1{font-size:clamp(1.8rem,6vw,3rem);font-weight:900;background:linear-gradient(135deg,#FF6B6B,#845EF7,#36C48A);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+header p{color:var(--muted);font-size:1rem;margin-top:4px}
+#scorebar{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;padding:16px 16px 0}
+.stat{background:var(--panel);border-radius:14px;padding:8px 20px;box-shadow:var(--shadow);text-align:center;min-width:80px}
+.stat .val{font-size:1.5rem;font-weight:900;line-height:1}
+.stat .lbl{font-size:.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+#sv{color:#FF6B6B}#tv{color:#845EF7}#lv{color:#36C48A}
+
+#gc{max-width:600px;margin:20px auto;background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);padding:26px 24px 28px;text-align:center}
+#lb{display:inline-block;background:#FFD166;color:var(--ink);font-size:.75rem;font-weight:900;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:99px;margin-bottom:14px}
+#instr{font-size:1rem;font-weight:800;color:var(--muted);margin-bottom:18px}
+
+/* big number display */
+#num-display{
+  font-size:4rem;font-weight:900;color:var(--purple);
+  background:#F7F5FC;border-radius:18px;padding:18px 10px;
+  margin-bottom:24px;letter-spacing:2px;
+}
+
+/* text answer input */
+#answer-form{display:flex;flex-direction:column;gap:14px;margin-bottom:8px}
+#answer-input{
+  width:100%;padding:16px 18px;border-radius:14px;
+  border:3px solid #E4DEF7;font-family:Arial,sans-serif;
+  font-size:1.15rem;font-weight:700;color:var(--ink);
+  background:#F9F8FD;text-align:center;
+  transition:border-color .15s, background .15s;
+}
+#answer-input:focus{outline:none;border-color:var(--purple);background:#fff}
+#answer-input:disabled{opacity:.7}
+#answer-input.correct{border-color:var(--green);background:#EAFBF2;color:#2b7a3b}
+#answer-input.wrong{border-color:var(--accent);background:#FFEAEA;color:#9b0000}
+#submit-btn{
+  background:linear-gradient(135deg,#845EF7,#FF6B6B);color:#fff;
+  font-family:Arial,sans-serif;font-size:1.05rem;font-weight:900;
+  padding:15px;border-radius:14px;border:none;cursor:pointer;
+  box-shadow:0 6px 18px rgba(132,94,247,.3);
+  transition:transform .15s, box-shadow .15s;
+}
+#submit-btn:hover:not(:disabled){transform:translateY(-2px)}
+#submit-btn:disabled{opacity:.5;cursor:default}
+#answer-hint{font-size:.8rem;color:var(--muted);text-align:center;margin-top:-4px}
+#correct-answer-box{
+  display:none;background:#EAFBF2;border:2px solid var(--green);border-radius:12px;
+  padding:12px 16px;font-size:.95rem;font-weight:700;color:#2b7a3b;text-align:center;
+}
+#correct-answer-box.show{display:block}
+
+#feedback{margin-top:16px;font-size:1.1rem;font-weight:800;min-height:1.7em}
+#feedback.g{color:var(--green)}#feedback.b{color:var(--accent)}
+
+#pw{margin-top:18px;background:#EDE9F6;border-radius:99px;height:10px;overflow:hidden}
+#pb{height:100%;background:linear-gradient(90deg,#845EF7,#FF6B6B);border-radius:99px;transition:width .4s ease;width:0%}
+#pl{font-size:.78rem;color:var(--muted);margin-top:6px;font-weight:700}
+
+.ov{display:none;position:fixed;inset:0;background:rgba(45,42,62,.6);z-index:100;align-items:center;justify-content:center;padding:16px}
+.ov.on{display:flex}
+.ob{background:var(--panel);border-radius:24px;padding:36px 30px;max-width:400px;width:100%;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.22)}
+.ob h2{font-size:1.9rem;font-weight:900;margin-bottom:8px}
+.ob p{color:var(--muted);font-size:1rem;margin-bottom:18px}
+.em{font-size:3.6rem;display:block;margin-bottom:10px}
+.bp{display:inline-block;background:linear-gradient(135deg,#845EF7,#FF6B6B);color:#fff;font-family:Arial,sans-serif;font-size:1.05rem;font-weight:900;padding:13px 34px;border-radius:14px;border:none;cursor:pointer;box-shadow:0 6px 20px rgba(132,94,247,.35);transition:transform .15s}
+.bp:hover{transform:translateY(-2px)}
+#rsc{font-size:2.2rem;font-weight:900;color:#FF6B6B}
+#rst{font-size:1.9rem;letter-spacing:4px;margin:6px 0 10px}
+.dbs{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:22px}
+.db{padding:9px 20px;border-radius:12px;border:3px solid transparent;font-family:Arial,sans-serif;font-weight:800;font-size:.9rem;cursor:pointer;transition:transform .15s}
+.db:hover{transform:scale(1.06)}
+.db.on{border-color:#845EF7}
+.de{background:#D3F9D8;color:#2b7a3b}
+.dm{background:#FFF3BF;color:#7c5a00}
+.dh{background:#FFE3E3;color:#9b0000}
+
+/* mode toggle: number->words or words->number */
+.mode-note{font-size:.82rem;color:var(--muted);margin-bottom:16px}
+
+@media(max-width:420px){
+  #num-display{font-size:2.8rem}
+  .opt-btn{font-size:.92rem;padding:14px 14px}
+}
+</style>
+</head>
+<body>
+<canvas id="cc"></canvas>
+
+<div class="ov on" id="ss">
+  <div class="ob">
+    <span class="em">&#128221;</span>
+    <h2>Number Names!</h2>
+    <p>Look at the number and pick how it's written in words. Choose your level!</p>
+    <div class="dbs">
+      <button class="db de on" data-d="easy">&#128522; Easy</button>
+      <button class="db dm" data-d="medium">&#128526; Medium</button>
+      <button class="db dh" data-d="hard">&#128293; Hard</button>
+    </div>
+    <button class="bp" id="startBtn">Let's Play! &#128640;</button>
+  </div>
+</div>
+
+<div class="ov" id="rs">
+  <div class="ob">
+    <span class="em" id="re">&#127942;</span>
+    <h2 id="rt">Round Over!</h2>
+    <div id="rst">&#11088;&#11088;&#11088;</div>
+    <div id="rsc">0 pts</div>
+    <p id="rm">Great job!</p>
+    <br>
+    <button class="bp" id="againBtn">Play Again &#128260;</button>
+  </div>
+</div>
+
+<header>
+  <h1>&#128221; Number Names</h1>
+  <p>Turn numbers into words!</p>
+</header>
+
+<div id="scorebar">
+  <div class="stat"><div class="val" id="sv">0</div><div class="lbl">Score</div></div>
+  <div class="stat"><div class="val" id="tv">0</div><div class="lbl">Streak</div></div>
+  <div class="stat"><div class="val" id="lv">&#10084;&#10084;&#10084;</div><div class="lbl">Lives</div></div>
+</div>
+
+<div id="gc">
+  <div id="lb">Easy</div>
+  <div id="instr-text">Which number name matches this number?</div>
+  <div id="num-display">345</div>
+  <div id="answer-form">
+    <input type="text" id="answer-input" placeholder="Type the number name..." autocomplete="off">
+    <div id="answer-hint">e.g. "Three hundred and forty-five"</div>
+    <button id="submit-btn">Check Answer &#9989;</button>
+  </div>
+  <div id="correct-answer-box"></div>
+  <div id="feedback"></div>
+  <div id="pw"><div id="pb"></div></div>
+  <div id="pl">Round 1 of 8</div>
+</div>
+
+<script>
+/* ---------- number-to-words engine ---------- */
+var ONES = ["", "one","two","three","four","five","six","seven","eight","nine",
+  "ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"];
+var TENS = ["", "", "twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"];
+
+function twoDigitWords(n){
+  if(n === 0) return "";
+  if(n < 20) return ONES[n];
+  var t = Math.floor(n/10), o = n%10;
+  return TENS[t] + (o ? "-" + ONES[o] : "");
+}
+
+function numberToWords(n){
+  var h = Math.floor(n/100), rest = n % 100;
+  var parts = [];
+  if(h > 0){
+    parts.push(ONES[h] + " hundred");
+  }
+  if(rest > 0){
+    if(h > 0) parts.push("and");
+    parts.push(twoDigitWords(rest));
+  }
+  if(parts.length === 0) return "zero";
+  return capitalize(parts.join(" "));
+}
+
+function capitalize(s){
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+/* ---------- game state ---------- */
+var TOTAL_ROUNDS = 8, MLIVES = 3, MCHOICES = 4;
+var BONUS = {easy:10, medium:15, hard:20};
+var LABEL = {easy:"Easy", medium:"Medium", hard:"Hard"};
+var RANGE = {
+  easy:   function(){ return round10(rand(100,499)); },   // round hundreds/tens, simpler words
+  medium: function(){ return rand(100,699); },
+  hard:   function(){ return rand(100,999); }
+};
+
+var diff="easy", roundNum=0, score=0, streak=0, lives=0, locked=false;
+var target=null, correctWords="", reverseMode=false;
+
+function $(id){return document.getElementById(id);}
+var numDisplay=$("num-display"), fbEl=$("feedback");
+var answerInput=$("answer-input"), submitBtn=$("submit-btn"), correctBox=$("correct-answer-box");
+var svEl=$("sv"), tvEl=$("tv"), lvEl=$("lv");
+var pbEl=$("pb"), plEl=$("pl"), lbEl=$("lb"), instrEl=$("instr-text");
+var ssEl=$("ss"), rsEl=$("rs");
+
+document.querySelectorAll(".db").forEach(function(b){
+  b.addEventListener("click",function(){
+    document.querySelectorAll(".db").forEach(function(x){x.classList.remove("on");});
+    b.classList.add("on");
+    diff=b.getAttribute("data-d");
+  });
+});
+$("startBtn").addEventListener("click", startGame);
+$("againBtn").addEventListener("click", function(){
+  rsEl.classList.remove("on");
+  ssEl.classList.add("on");
+});
+submitBtn.addEventListener("click", submitAnswer);
+answerInput.addEventListener("keydown", function(e){
+  if(e.key === "Enter" && !locked) submitAnswer();
+});
+
+function shuffle(a){return a.slice().sort(function(){return Math.random()-.5;});}
+function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+function round10(n){return Math.round(n/10)*10 + (Math.random()<0.3 ? rand(0,9) : 0);}
+
+function startGame(){
+  ssEl.classList.remove("on");
+  score=0; streak=0; lives=MLIVES; roundNum=0;
+  lbEl.textContent = LABEL[diff];
+  updateHUD();
+  nextRound();
+}
+
+function nextRound(){
+  locked = false;
+  fbEl.textContent = ""; fbEl.className = "";
+  correctBox.classList.remove("show"); correctBox.textContent = "";
+  answerInput.value = ""; answerInput.className = "";
+  answerInput.disabled = false; submitBtn.disabled = false;
+
+  if(roundNum >= TOTAL_ROUNDS || lives <= 0){ endGame(); return; }
+  roundNum++;
+  pbEl.style.width = ((roundNum-1)/TOTAL_ROUNDS*100) + "%";
+  plEl.textContent = "Round " + roundNum + " of " + TOTAL_ROUNDS;
+
+  // alternate the direction: number->words vs words->number, for variety
+  var reverse = (roundNum % 2 === 0) && diff !== "easy";
+
+  target = RANGE[diff]();
+  correctWords = numberToWords(target);
+  reverseMode = reverse;
+
+  if(!reverse){
+    instrEl.textContent = "Write this number as words:";
+    numDisplay.textContent = target;
+    numDisplay.style.fontSize = "";
+    answerInput.placeholder = "Type the number name...";
+    $("answer-hint").textContent = 'e.g. "Three hundred and forty-five"';
+  } else {
+    instrEl.textContent = "Write this number name as digits:";
+    numDisplay.textContent = correctWords;
+    numDisplay.style.fontSize = "1.7rem";
+    answerInput.placeholder = "Type the number...";
+    $("answer-hint").textContent = 'e.g. "345"';
+  }
+
+  setTimeout(function(){ answerInput.focus(); }, 50);
+}
+
+/* normalize text for lenient comparison: lowercase, strip punctuation/extra spaces */
+function normalize(s){
+  return s.toLowerCase()
+    .replace(/[-,]/g, " ")
+    .replace(/\band\b/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function submitAnswer(){
+  if(locked) return;
+  var raw = answerInput.value.trim();
+  if(raw === "") { answerInput.focus(); return; }
+
+  locked = true;
+  answerInput.disabled = true;
+  submitBtn.disabled = true;
+
+  var correct;
+  if(!reverseMode){
+    correct = normalize(raw) === normalize(correctWords);
+  } else {
+    correct = parseInt(raw.replace(/[^\d]/g,""), 10) === target;
+  }
+
+  if(correct){
+    answerInput.classList.add("correct");
+    streak++;
+    var bonus = Math.min(streak-1,4)*2;
+    var pts = BONUS[diff] + bonus;
+    score += pts;
+    fbEl.textContent = (streak>1 ? "Streak x"+streak+"! " : "") + "Correct! +" + pts + " pts";
+    fbEl.className = "g";
+    burst();
+  } else {
+    answerInput.classList.add("wrong");
+    streak = 0;
+    lives--;
+    fbEl.textContent = "Not quite!";
+    fbEl.className = "b";
+    var correctDisplay = !reverseMode ? correctWords : String(target);
+    correctBox.textContent = "Correct answer: " + correctDisplay;
+    correctBox.classList.add("show");
+  }
+  updateHUD();
+  setTimeout(nextRound, correct ? 1500 : 2400);
+}
+
+function endGame(){
+  pbEl.style.width = "100%";
+  var maxScore = TOTAL_ROUNDS * (BONUS[diff] + 8);
+  var pct = score / maxScore;
+  var stars = pct >= .8 ? 3 : pct >= .5 ? 2 : 1;
+  var ss=""; for(var i=0;i<3;i++) ss += i<stars ? "\u2B50" : "\u2606";
+
+  $("re").textContent = stars===3 ? "\uD83C\uDFC6" : stars===2 ? "\uD83D\uDE0A" : "\uD83D\uDE05";
+  $("rt").textContent = lives<=0 ? "Out of Lives!" : "Word Wizard!";
+  $("rst").textContent = ss;
+  $("rsc").textContent = score + " pts";
+  $("rm").textContent = stars===3 ? "Amazing! You know your number names!" :
+    stars===2 ? "Nice work! Try again for a perfect score!" :
+    "Keep practising your number words!";
+  rsEl.classList.add("on");
+  if(stars===3) setTimeout(bigBurst, 200);
+}
+
+function updateHUD(){
+  svEl.textContent = score;
+  tvEl.textContent = streak;
+  var h=""; for(var i=0;i<MLIVES;i++) h += i<lives ? "\u2764\uFE0F" : "\uD83D\uDDA4";
+  lvEl.textContent = h;
+}
+
+/* ---------- confetti ---------- */
+var canvas=$("cc"), ctx=canvas.getContext("2d"), parts=[], rid=null;
+function resize(){canvas.width=innerWidth;canvas.height=innerHeight;}
+window.addEventListener("resize",resize); resize();
+var PCOLS=["#FF6B6B","#845EF7","#FFD166","#36C48A","#15AABF","#F07EAA","#F4793C"];
+
+function burst(){ spawn(30, innerWidth/2, innerHeight*.4); }
+function bigBurst(){ spawn(120, innerWidth/2, 0); }
+function spawn(n,x,y){
+  for(var i=0;i<n;i++){
+    var a=Math.random()*Math.PI*2, s=2+Math.random()*5;
+    parts.push({x:x,y:y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-(y===0?0:3),
+      c:PCOLS[Math.floor(Math.random()*PCOLS.length)],
+      sz:6+Math.random()*8,r:Math.random()*360,rv:(Math.random()-.5)*8,l:1});
+  }
+  if(!rid) draw();
+}
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  parts.forEach(function(p){
+    p.x+=p.vx; p.y+=p.vy; p.vy+=.12; p.vx*=.99; p.r+=p.rv; p.l-=.014;
+    ctx.save(); ctx.globalAlpha=Math.max(0,p.l);
+    ctx.translate(p.x,p.y); ctx.rotate(p.r*Math.PI/180);
+    ctx.fillStyle=p.c; ctx.fillRect(-p.sz/2,-p.sz/4,p.sz,p.sz/2);
+    ctx.restore();
+  });
+  parts=parts.filter(function(p){return p.l>0 && p.y<canvas.height+40;});
+  rid = parts.length ? requestAnimationFrame(draw) : null;
+}
+</script>
+</body>
+</html>
