@@ -3,173 +3,406 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kids Brain Games - Fun Learning Games for Children</title>
+<title>Kids Brain Games - Portal</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#FFF8F0;--panel:#FFFFFF;--ink:#2D2A3E;--muted:#7B7599;
   --accent:#FF6B6B;--green:#36C48A;--yellow:#FFD166;--purple:#845EF7;
-  --radius:22px;--shadow:0 8px 32px rgba(45,42,62,.12);
+  --sidebar-w:260px;
+  --shadow:0 8px 32px rgba(45,42,62,.12);
 }
-html,body{
-  min-height:100%;font-family:Arial,Helvetica,sans-serif;
-  background:var(--bg);color:var(--ink);overflow-x:hidden;
-}
-body{
-  background-image:
-    radial-gradient(circle at 10% 15%, rgba(255,107,107,.08) 0%, transparent 40%),
-    radial-gradient(circle at 90% 10%, rgba(132,94,247,.08) 0%, transparent 40%),
-    radial-gradient(circle at 50% 90%, rgba(54,196,138,.08) 0%, transparent 45%);
-}
+html,body{height:100%;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink);overflow:hidden}
+body{display:flex}
 
-header{text-align:center;padding:44px 16px 8px}
-header .logo{font-size:3rem;display:block;margin-bottom:6px}
-header h1{
-  font-size:clamp(2.1rem,7vw,3.4rem);font-weight:900;letter-spacing:-1px;
+/* ================= SIDEBAR ================= */
+#sidebar{
+  width:var(--sidebar-w);flex-shrink:0;height:100vh;
+  background:var(--panel);box-shadow:2px 0 20px rgba(45,42,62,.08);
+  display:flex;flex-direction:column;
+  overflow-y:auto;z-index:20;
+  transition:transform .25s ease;
+}
+#sidebar-header{
+  padding:26px 22px 18px;text-align:center;
+  border-bottom:1px solid #F0ECFA;
+}
+#sidebar-header .logo{font-size:2.2rem;display:block;margin-bottom:4px}
+#sidebar-header h1{
+  font-size:1.25rem;font-weight:900;letter-spacing:-.5px;
   background:linear-gradient(135deg,#FF6B6B 0%,#845EF7 50%,#36C48A 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
 }
-header p{color:var(--muted);font-size:1.1rem;margin-top:8px;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.5}
+#sidebar-header p{font-size:.75rem;color:var(--muted);margin-top:4px;font-weight:600}
 
-#intro{max-width:760px;margin:28px auto 0;padding:0 16px;text-align:center}
-#intro p{color:var(--muted);font-size:1rem;line-height:1.7}
-#benefits{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:22px}
+#nav-list{list-style:none;padding:16px 12px;flex:1}
+#nav-list li{margin-bottom:8px}
+
+.nav-link{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 14px;border-radius:14px;
+  text-decoration:none;color:var(--ink);
+  font-weight:800;font-size:.95rem;
+  cursor:pointer;border:2px solid transparent;
+  transition:background .15s, transform .15s, border-color .15s;
+}
+.nav-link:hover{background:#F7F5FC;transform:translateX(2px)}
+.nav-link .ic{
+  font-size:1.4rem;width:36px;height:36px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:10px;
+}
+.nav-link .txt{display:flex;flex-direction:column;line-height:1.25}
+.nav-link .txt small{font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+
+.nav-link.home .ic{background:#FFF3E0}
+.nav-link.game1 .ic{background:#FFE8E8}
+.nav-link.game2 .ic{background:#EEE6FF}
+.nav-link.game3 .ic{background:#DFF7EB}
+.nav-link.game4 .ic{background:#FFE9CC}
+
+.nav-link.active{border-color:var(--purple);background:#F3F0FA}
+.nav-link.active.home{border-color:var(--yellow)}
+.nav-link.active.game1{border-color:var(--accent)}
+.nav-link.active.game3{border-color:var(--green)}
+.nav-link.active.game4{border-color:#F4793C}
+
+#nav-divider{
+  font-size:.68rem;font-weight:900;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.08em;
+  padding:6px 14px 8px;margin-top:6px;
+}
+
+#sidebar-footer{
+  padding:16px 20px;text-align:center;
+  border-top:1px solid #F0ECFA;
+  font-size:.75rem;color:var(--muted);
+}
+#sidebar-footer .heart{color:var(--accent)}
+
+/* mobile toggle button */
+#menu-toggle{
+  display:none;position:fixed;top:14px;left:14px;z-index:30;
+  width:44px;height:44px;border-radius:12px;border:none;
+  background:var(--panel);box-shadow:var(--shadow);
+  font-size:1.3rem;cursor:pointer;align-items:center;justify-content:center;
+}
+#overlay{
+  display:none;position:fixed;inset:0;background:rgba(45,42,62,.4);z-index:15;
+}
+#overlay.on{display:block}
+
+/* ================= MAIN AREA ================= */
+#main{flex:1;height:100vh;overflow:hidden;position:relative;display:flex;flex-direction:column}
+
+/* -------- HOME VIEW (landing content) -------- */
+#home-view{
+  flex:1;overflow-y:auto;padding:0;
+  display:flex;flex-direction:column;
+}
+#home-view.hidden{display:none}
+
+.hero{text-align:center;padding:46px 24px 10px}
+.hero .logo{font-size:3rem;display:block;margin-bottom:6px}
+.hero h1{
+  font-size:clamp(2rem,5vw,3rem);font-weight:900;letter-spacing:-1px;
+  background:linear-gradient(135deg,#FF6B6B 0%,#845EF7 50%,#36C48A 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero p{color:var(--muted);font-size:1.05rem;margin-top:8px;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.5}
+
+#benefits{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin:22px 16px 0}
 .benefit{
   background:var(--panel);border-radius:14px;box-shadow:var(--shadow);
-  padding:10px 18px;font-size:.88rem;font-weight:800;color:var(--ink);
+  padding:10px 18px;font-size:.85rem;font-weight:800;color:var(--ink);
   display:flex;align-items:center;gap:8px;
 }
-.benefit .ic{font-size:1.2rem}
+.benefit .ic{font-size:1.15rem}
 
-#games{
-  max-width:1080px;margin:40px auto;padding:0 20px;
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
-  gap:26px;
+#games-grid{
+  max-width:1000px;margin:36px auto 50px;padding:0 24px;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:24px;width:100%;
 }
-.card{
-  background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);
-  overflow:hidden;display:flex;flex-direction:column;
-  transition:transform .2s ease, box-shadow .2s ease;
-  text-decoration:none;color:inherit;
+.game-card{
+  background:var(--panel);border-radius:20px;box-shadow:var(--shadow);
+  overflow:hidden;display:flex;flex-direction:column;cursor:pointer;
+  transition:transform .2s ease, box-shadow .2s ease;border:none;text-align:left;
 }
-.card:hover{transform:translateY(-6px);box-shadow:0 16px 42px rgba(45,42,62,.18)}
-.card-top{padding:34px 24px 20px;text-align:center;position:relative}
-.card-top .icon{font-size:3.6rem;display:block;margin-bottom:6px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.12))}
-.card1 .card-top{background:linear-gradient(160deg,#FFF3E0,#FFE0E0)}
-.card2 .card-top{background:linear-gradient(160deg,#F0EBFF,#E0D6FF)}
-.card3 .card-top{background:linear-gradient(160deg,#E0F7EE,#D0F0E0)}
-
-.card-top h2{font-size:1.5rem;font-weight:900;margin-top:6px}
-.badge{display:inline-block;font-size:.7rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em;padding:4px 12px;border-radius:99px;margin-top:8px}
-.card1 .badge{background:#FFD166;color:#7c5a00}
-.card2 .badge{background:#D6C7FF;color:#4a2ea3}
-.card3 .badge{background:#B7F0D6;color:#0d6b45}
-
-.card-body{padding:16px 24px 26px;flex:1;display:flex;flex-direction:column}
-.card-body p{color:var(--muted);font-size:.95rem;line-height:1.5;margin-bottom:16px;flex:1}
-
-.skills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
-.skill-tag{font-size:.72rem;font-weight:800;background:#F3F0FA;color:#6741d9;padding:4px 10px;border-radius:8px}
-
-.play-btn{
+.game-card:hover{transform:translateY(-6px);box-shadow:0 16px 42px rgba(45,42,62,.18)}
+.gc-top{padding:30px 22px 18px;text-align:center}
+.gc-top .icon{font-size:3.2rem;display:block;margin-bottom:6px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.12))}
+.gc1 .gc-top{background:linear-gradient(160deg,#FFF3E0,#FFE0E0)}
+.gc2 .gc-top{background:linear-gradient(160deg,#F0EBFF,#E0D6FF)}
+.gc3 .gc-top{background:linear-gradient(160deg,#E0F7EE,#D0F0E0)}
+.gc4 .gc-top{background:linear-gradient(160deg,#FFF0DB,#FFE0C2)}
+.gc-top h2{font-size:1.3rem;font-weight:900;margin-top:4px}
+.gc-badge{display:inline-block;font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em;padding:4px 10px;border-radius:99px;margin-top:6px}
+.gc1 .gc-badge{background:#FFD166;color:#7c5a00}
+.gc2 .gc-badge{background:#D6C7FF;color:#4a2ea3}
+.gc3 .gc-badge{background:#B7F0D6;color:#0d6b45}
+.gc4 .gc-badge{background:#FFCC99;color:#8a4400}
+.gc-body{padding:14px 22px 22px;flex:1;display:flex;flex-direction:column}
+.gc-body p{color:var(--muted);font-size:.9rem;line-height:1.5;margin-bottom:14px;flex:1}
+.gc-skills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.gc-skill{font-size:.68rem;font-weight:800;background:#F3F0FA;color:#6741d9;padding:4px 9px;border-radius:8px}
+.gc-play{
   display:flex;align-items:center;justify-content:center;gap:8px;
   background:linear-gradient(135deg,#845EF7,#FF6B6B);color:#fff;
-  font-size:1rem;font-weight:900;padding:13px;border-radius:14px;
-  box-shadow:0 6px 18px rgba(132,94,247,.3);
-  transition:transform .15s, box-shadow .15s;
+  font-size:.95rem;font-weight:900;padding:12px;border-radius:12px;
 }
-.card:hover .play-btn{transform:translateY(-2px);box-shadow:0 10px 26px rgba(132,94,247,.4)}
 
-footer{text-align:center;padding:36px 16px 46px;color:var(--muted);font-size:.85rem}
-footer .heart{color:var(--accent)}
+#home-footer{text-align:center;padding:0 16px 30px;color:var(--muted);font-size:.8rem}
+#home-footer .heart{color:var(--accent)}
 
-@media(max-width:520px){
-  header{padding:32px 16px 4px}
-  #games{margin:30px auto}
+/* -------- GAME VIEW (iframe) -------- */
+#game-view{flex:1;display:none;flex-direction:column;height:100vh}
+#game-view.active{display:flex}
+#game-topbar{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 18px;background:var(--panel);
+  box-shadow:0 2px 12px rgba(45,42,62,.08);z-index:5;
+}
+#back-btn{
+  display:flex;align-items:center;gap:6px;
+  background:#F3F0FA;color:#6741d9;border:none;
+  font-weight:800;font-size:.9rem;padding:9px 16px;border-radius:12px;
+  cursor:pointer;transition:background .15s;
+}
+#back-btn:hover{background:#E9E2FA}
+#game-title{font-weight:900;font-size:1.05rem;flex:1}
+#game-frame-wrap{flex:1;position:relative;background:#FFF8F0}
+#game-frame{width:100%;height:100%;border:none;display:block}
+
+@media(max-width:860px){
+  :root{--sidebar-w:240px}
+  #sidebar{position:fixed;top:0;left:0;transform:translateX(-100%)}
+  #sidebar.open{transform:translateX(0)}
+  #menu-toggle{display:flex}
+  .hero{padding-top:70px}
 }
 </style>
 </head>
 <body>
 
-<header>
-  <span class="logo">&#127881;</span>
-  <h1>Kids Brain Games</h1>
-  <p>Fun, colourful mini-games that help children build memory, focus, and pattern recognition — one playful round at a time.</p>
-</header>
+<button id="menu-toggle" aria-label="Toggle menu">&#9776;</button>
+<div id="overlay"></div>
 
-<div id="intro">
-  <p>
-    Each game below is designed to be simple enough for young children to pick up in seconds,
-    while still offering enough challenge to keep them engaged. Play in short bursts, track
-    your score, and try to beat your best round!
-  </p>
-  <div id="benefits">
-    <div class="benefit"><span class="ic">&#129504;</span> Builds memory</div>
-    <div class="benefit"><span class="ic">&#127919;</span> Improves focus</div>
-    <div class="benefit"><span class="ic">&#9889;</span> Sharpens reaction speed</div>
-    <div class="benefit"><span class="ic">&#128200;</span> Builds pattern recognition</div>
-    <div class="benefit"><span class="ic">&#128241;</span> Works on any device</div>
+<!-- ================= SIDEBAR ================= -->
+<nav id="sidebar">
+  <div id="sidebar-header">
+    <span class="logo">&#127881;</span>
+    <h1>Kids Brain Games</h1>
+    <p>Play &amp; Learn</p>
   </div>
-</div>
 
-<div id="games">
+  <div id="nav-divider">Menu</div>
+  <ul id="nav-list">
+    <li><a class="nav-link home active" data-target="home">
+      <span class="ic">&#127968;</span>
+      <span class="txt">Home<small>All games</small></span>
+    </a></li>
+  </ul>
 
-  <a class="card card1" href="colour-game.html">
-    <div class="card-top">
-      <span class="icon">&#127912;</span>
-      <h2>Colour Quest</h2>
-      <span class="badge">Colour Identification</span>
+  <div id="nav-divider">Games</div>
+  <ul id="nav-list" style="padding-top:0">
+    <li><a class="nav-link game1" data-target="colour-game.html" data-title="Colour Quest">
+      <span class="ic">&#127912;</span>
+      <span class="txt">Colour Quest<small>Colour ID</small></span>
+    </a></li>
+    <li><a class="nav-link game2" data-target="shape-sorter.html" data-title="Shape Sorter">
+      <span class="ic">&#129513;</span>
+      <span class="txt">Shape Sorter<small>Drag &amp; Drop</small></span>
+    </a></li>
+    <li><a class="nav-link game3" data-target="memory-match.html" data-title="Memory Match">
+      <span class="ic">&#129504;</span>
+      <span class="txt">Memory Match<small>Card Flip</small></span>
+    </a></li>
+    <li><a class="nav-link game4" data-target="number-riddle.html" data-title="Number Riddle">
+      <span class="ic">&#128269;</span>
+      <span class="txt">Number Riddle<small>Place Value</small></span>
+    </a></li>
+  </ul>
+
+  <div id="sidebar-footer">Made with <span class="heart">&#9829;</span> for young minds</div>
+</nav>
+
+<!-- ================= MAIN ================= -->
+<main id="main">
+
+  <!-- HOME VIEW -->
+  <div id="home-view">
+    <div class="hero">
+      <span class="logo">&#127881;</span>
+      <h1>Kids Brain Games</h1>
+      <p>Fun, colourful mini-games that help children build memory, focus, and pattern recognition — one playful round at a time.</p>
     </div>
-    <div class="card-body">
-      <p>Look at the colour blob and pick its name from four choices. Speed and accuracy build up your streak for bonus points!</p>
-      <div class="skills">
-        <span class="skill-tag">Colour recognition</span>
-        <span class="skill-tag">Vocabulary</span>
-        <span class="skill-tag">Quick thinking</span>
-      </div>
-      <div class="play-btn">Play Now &#9654;</div>
-    </div>
-  </a>
 
-  <a class="card card2" href="shape-sorter.html">
-    <div class="card-top">
-      <span class="icon">&#129513;</span>
-      <h2>Shape Sorter</h2>
-      <span class="badge">Drag &amp; Drop</span>
+    <div id="benefits">
+      <div class="benefit"><span class="ic">&#129504;</span> Builds memory</div>
+      <div class="benefit"><span class="ic">&#127919;</span> Improves focus</div>
+      <div class="benefit"><span class="ic">&#9889;</span> Sharpens reaction speed</div>
+      <div class="benefit"><span class="ic">&#128200;</span> Pattern recognition</div>
+      <div class="benefit"><span class="ic">&#128241;</span> Works on any device</div>
     </div>
-    <div class="card-body">
-      <p>Drag each shape into the outline that matches it. A hands-on game that trains the eye to spot shapes quickly and precisely.</p>
-      <div class="skills">
-        <span class="skill-tag">Pattern recognition</span>
-        <span class="skill-tag">Hand-eye coordination</span>
-        <span class="skill-tag">Shape memory</span>
-      </div>
-      <div class="play-btn">Play Now &#9654;</div>
+
+    <div id="games-grid">
+      <button class="game-card gc1" data-target="colour-game.html" data-title="Colour Quest">
+        <div class="gc-top">
+          <span class="icon">&#127912;</span>
+          <h2>Colour Quest</h2>
+          <span class="gc-badge">Colour Identification</span>
+        </div>
+        <div class="gc-body">
+          <p>Look at the colour blob and pick its name from four choices. Build a streak for bonus points!</p>
+          <div class="gc-skills">
+            <span class="gc-skill">Colour recognition</span>
+            <span class="gc-skill">Vocabulary</span>
+            <span class="gc-skill">Quick thinking</span>
+          </div>
+          <div class="gc-play">Play Now &#9654;</div>
+        </div>
+      </button>
+
+      <button class="game-card gc2" data-target="shape-sorter.html" data-title="Shape Sorter">
+        <div class="gc-top">
+          <span class="icon">&#129513;</span>
+          <h2>Shape Sorter</h2>
+          <span class="gc-badge">Drag &amp; Drop</span>
+        </div>
+        <div class="gc-body">
+          <p>Drag each shape into the outline that matches it. Trains the eye to spot shapes quickly and precisely.</p>
+          <div class="gc-skills">
+            <span class="gc-skill">Pattern recognition</span>
+            <span class="gc-skill">Hand-eye coordination</span>
+            <span class="gc-skill">Shape memory</span>
+          </div>
+          <div class="gc-play">Play Now &#9654;</div>
+        </div>
+      </button>
+
+      <button class="game-card gc3" data-target="memory-match.html" data-title="Memory Match">
+        <div class="gc-top">
+          <span class="icon">&#129504;</span>
+          <h2>Memory Match</h2>
+          <span class="gc-badge">Card Flip</span>
+        </div>
+        <div class="gc-body">
+          <p>Flip two cards at a time and find matching pairs. Fewer moves means a sharper memory and higher stars!</p>
+          <div class="gc-skills">
+            <span class="gc-skill">Short-term memory</span>
+            <span class="gc-skill">Concentration</span>
+            <span class="gc-skill">Visual recall</span>
+          </div>
+          <div class="gc-play">Play Now &#9654;</div>
+        </div>
+      </button>
+
+      <button class="game-card gc4" data-target="number-riddle.html" data-title="Number Riddle">
+        <div class="gc-top">
+          <span class="icon">&#128269;</span>
+          <h2>Number Riddle</h2>
+          <span class="gc-badge">Place Value</span>
+        </div>
+        <div class="gc-body">
+          <p>Read clues about hundreds, tens, and ones digits, then guess the secret number from four choices!</p>
+          <div class="gc-skills">
+            <span class="gc-skill">Place value</span>
+            <span class="gc-skill">Logical reasoning</span>
+            <span class="gc-skill">Number sense</span>
+          </div>
+          <div class="gc-play">Play Now &#9654;</div>
+        </div>
+      </button>
     </div>
-  </a>
 
-  <a class="card card3" href="memory-match.html">
-    <div class="card-top">
-      <span class="icon">&#129504;</span>
-      <h2>Memory Match</h2>
-      <span class="badge">Card Flip</span>
+    <div id="home-footer">Made with <span class="heart">&#9829;</span> for curious young minds.</div>
+  </div>
+
+  <!-- GAME VIEW (iframe) -->
+  <div id="game-view">
+    <div id="game-topbar">
+      <button id="back-btn">&#8592; Back to Home</button>
+      <div id="game-title">Game</div>
     </div>
-    <div class="card-body">
-      <p>Flip two cards at a time and try to find matching pairs. Fewer moves means a sharper memory and a higher star rating!</p>
-      <div class="skills">
-        <span class="skill-tag">Short-term memory</span>
-        <span class="skill-tag">Concentration</span>
-        <span class="skill-tag">Visual recall</span>
-      </div>
-      <div class="play-btn">Play Now &#9654;</div>
+    <div id="game-frame-wrap">
+      <iframe id="game-frame" src="" title="Game"></iframe>
     </div>
-  </a>
+  </div>
 
-</div>
+</main>
 
-<footer>
-  Made with <span class="heart">&#9829;</span> for curious young minds.
-</footer>
+<script>
+var sidebar = document.getElementById("sidebar");
+var overlay = document.getElementById("overlay");
+var menuToggle = document.getElementById("menu-toggle");
+var homeView = document.getElementById("home-view");
+var gameView = document.getElementById("game-view");
+var gameFrame = document.getElementById("game-frame");
+var gameTitle = document.getElementById("game-title");
+var backBtn = document.getElementById("back-btn");
+var navLinks = document.querySelectorAll(".nav-link");
 
+function openGame(src, title){
+  gameFrame.src = src;
+  gameTitle.textContent = title;
+  homeView.classList.add("hidden");
+  gameView.classList.add("active");
+  setActiveNav(src);
+  closeSidebarMobile();
+  window.scrollTo(0,0);
+}
+
+function goHome(){
+  gameView.classList.remove("active");
+  homeView.classList.remove("hidden");
+  gameFrame.src = "";
+  setActiveNav("home");
+  closeSidebarMobile();
+}
+
+function setActiveNav(target){
+  navLinks.forEach(function(link){
+    if(link.getAttribute("data-target") === target){
+      link.classList.add("active");
+    } else {
+      link.classList.remove("active");
+    }
+  });
+}
+
+/* sidebar nav links */
+navLinks.forEach(function(link){
+  link.addEventListener("click", function(){
+    var target = link.getAttribute("data-target");
+    if(target === "home"){
+      goHome();
+    } else {
+      openGame(target, link.getAttribute("data-title"));
+    }
+  });
+});
+
+/* home page game cards */
+document.querySelectorAll(".game-card").forEach(function(card){
+  card.addEventListener("click", function(){
+    openGame(card.getAttribute("data-target"), card.getAttribute("data-title"));
+  });
+});
+
+backBtn.addEventListener("click", goHome);
+
+/* mobile sidebar toggle */
+menuToggle.addEventListener("click", function(){
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("on");
+});
+overlay.addEventListener("click", closeSidebarMobile);
+
+function closeSidebarMobile(){
+  sidebar.classList.remove("open");
+  overlay.classList.remove("on");
+}
+</script>
 </body>
 </html>
