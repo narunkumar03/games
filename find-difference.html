@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Find the Difference - Kids Game</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FFF8F0;--panel:#FFFFFF;--ink:#2D2A3E;--muted:#7B7599;
+  --accent:#FF6B6B;--green:#36C48A;--yellow:#FFD166;--purple:#845EF7;
+  --radius:20px;--shadow:0 8px 32px rgba(45,42,62,.12);
+}
+html,body{height:100%;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink);overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+#cc{position:fixed;inset:0;pointer-events:none;z-index:999}
+header{text-align:center;padding:22px 16px 0}
+header h1{font-size:clamp(1.8rem,6vw,3rem);font-weight:900;background:linear-gradient(135deg,#FF6B6B,#845EF7,#36C48A);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+header p{color:var(--muted);font-size:1rem;margin-top:4px}
+#scorebar{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;padding:14px 16px 0}
+.stat{background:var(--panel);border-radius:14px;padding:8px 18px;box-shadow:var(--shadow);text-align:center;min-width:76px}
+.stat .val{font-size:1.45rem;font-weight:900;line-height:1}
+.stat .lbl{font-size:.7rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+#sv{color:#FF6B6B}#fv{color:#845EF7}#lv{color:#36C48A}
+
+#gc{max-width:900px;margin:18px auto;background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px 18px 26px;text-align:center}
+#lb{display:inline-block;background:#FFD166;color:var(--ink);font-size:.75rem;font-weight:900;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:99px;margin-bottom:10px}
+#instr{font-size:1.05rem;font-weight:800;margin-bottom:16px}
+
+#scenes{
+  display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-bottom:18px;
+}
+.scene-wrap{
+  position:relative;flex:1;min-width:260px;max-width:400px;
+  border-radius:16px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.12);
+  background:#fff;
+}
+.scene-wrap svg{width:100%;height:auto;display:block;cursor:crosshair}
+.marker{
+  position:absolute;border:3px solid var(--green);border-radius:50%;
+  pointer-events:none;box-shadow:0 0 0 3px rgba(54,196,138,.3);
+  animation:markerPop .35s ease;
+}
+@keyframes markerPop{
+  0%{transform:scale(0);opacity:0}
+  60%{transform:scale(1.2);opacity:1}
+  100%{transform:scale(1);opacity:1}
+}
+.miss-flash{
+  position:absolute;border-radius:50%;background:rgba(255,107,107,.35);
+  pointer-events:none;animation:missFade .5s ease forwards;
+}
+@keyframes missFade{
+  0%{transform:scale(.3);opacity:1}
+  100%{transform:scale(1.8);opacity:0}
+}
+
+#found-tracker{
+  display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:16px;
+}
+.found-dot{
+  width:14px;height:14px;border-radius:50%;background:#EDE9F6;
+  border:2px solid #D6CCF0;transition:background .2s,border-color .2s,transform .2s;
+}
+.found-dot.hit{background:var(--green);border-color:var(--green);transform:scale(1.2)}
+
+#feedback{margin-top:4px;font-size:1.1rem;font-weight:800;min-height:1.7em}
+#feedback.g{color:var(--green)}#feedback.b{color:var(--accent)}
+
+#pw{margin-top:14px;background:#EDE9F6;border-radius:99px;height:10px;overflow:hidden}
+#pb{height:100%;background:linear-gradient(90deg,#845EF7,#FF6B6B);border-radius:99px;transition:width .4s ease;width:0%}
+#pl{font-size:.78rem;color:var(--muted);margin-top:6px;font-weight:700}
+
+.ov{display:none;position:fixed;inset:0;background:rgba(45,42,62,.6);z-index:100;align-items:center;justify-content:center;padding:16px}
+.ov.on{display:flex}
+.ob{background:var(--panel);border-radius:24px;padding:36px 30px;max-width:400px;width:100%;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.22)}
+.ob h2{font-size:1.9rem;font-weight:900;margin-bottom:8px}
+.ob p{color:var(--muted);font-size:1rem;margin-bottom:18px}
+.em{font-size:3.6rem;display:block;margin-bottom:10px}
+.bp{display:inline-block;background:linear-gradient(135deg,#845EF7,#FF6B6B);color:#fff;font-family:Arial,sans-serif;font-size:1.05rem;font-weight:900;padding:13px 34px;border-radius:14px;border:none;cursor:pointer;box-shadow:0 6px 20px rgba(132,94,247,.35);transition:transform .15s}
+.bp:hover{transform:translateY(-2px)}
+#rsc{font-size:2.2rem;font-weight:900;color:#FF6B6B}
+#rst{font-size:1.9rem;letter-spacing:4px;margin:6px 0 10px}
+.dbs{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:22px}
+.db{padding:9px 20px;border-radius:12px;border:3px solid transparent;font-family:Arial,sans-serif;font-weight:800;font-size:.9rem;cursor:pointer;transition:transform .15s}
+.db:hover{transform:scale(1.06)}
+.db.on{border-color:#845EF7}
+.de{background:#D3F9D8;color:#2b7a3b}
+.dm{background:#FFF3BF;color:#7c5a00}
+.dh{background:#FFE3E3;color:#9b0000}
+
+#next-btn{
+  display:none;margin-top:14px;
+  background:linear-gradient(135deg,#36C48A,#15AABF);color:#fff;
+  font-family:Arial,sans-serif;font-size:1rem;font-weight:900;
+  padding:12px 28px;border-radius:14px;border:none;cursor:pointer;
+  box-shadow:0 6px 18px rgba(54,196,138,.3);
+}
+#next-btn.show{display:inline-block}
+
+@media(max-width:700px){
+  .scene-wrap{min-width:100%}
+}
+</style>
+</head>
+<body>
+<canvas id="cc"></canvas>
+
+<div class="ov on" id="ss">
+  <div class="ob">
+    <span class="em">&#128269;</span>
+    <h2>Find the Difference!</h2>
+    <p>Two pictures look the same - but a few things changed. Tap the spots that are different!</p>
+    <div class="dbs">
+      <button class="db de on" data-d="easy">&#128522; Easy</button>
+      <button class="db dm" data-d="medium">&#128526; Medium</button>
+      <button class="db dh" data-d="hard">&#128293; Hard</button>
+    </div>
+    <button class="bp" id="startBtn">Let's Play! &#128640;</button>
+  </div>
+</div>
+
+<div class="ov" id="rs">
+  <div class="ob">
+    <span class="em" id="re">&#127942;</span>
+    <h2 id="rt">Round Over!</h2>
+    <div id="rst">&#11088;&#11088;&#11088;</div>
+    <div id="rsc">0 pts</div>
+    <p id="rm">Great job!</p>
+    <br>
+    <button class="bp" id="againBtn">Play Again &#128260;</button>
+  </div>
+</div>
+
+<header>
+  <h1>&#128269; Find the Difference</h1>
+  <p>Spot what changed between the two pictures!</p>
+</header>
+
+<div id="scorebar">
+  <div class="stat"><div class="val" id="sv">0</div><div class="lbl">Score</div></div>
+  <div class="stat"><div class="val" id="fv">0</div><div class="lbl">Found</div></div>
+  <div class="stat"><div class="val" id="lv">&#10084;&#10084;&#10084;</div><div class="lbl">Lives</div></div>
+</div>
+
+<div id="gc">
+  <div id="lb">Easy</div>
+  <div id="instr">Tap the differences in either picture</div>
+  <div id="found-tracker"></div>
+
+  <div id="scenes">
+    <div class="scene-wrap" id="scene-a-wrap"></div>
+    <div class="scene-wrap" id="scene-b-wrap"></div>
+  </div>
+
+  <div id="feedback"></div>
+  <button id="next-btn">Next Picture &#8594;</button>
+
+  <div id="pw"><div id="pb"></div></div>
+  <div id="pl">Round 1 of 5</div>
+</div>
+
+<script>
+/* =========================================================
+   SCENE LIBRARY
+   Each scene is a base SVG (list of shape objects) plus a
+   set of possible "difference" mutations. A round picks a
+   scene, applies N random mutations to make scene B, and
+   remembers each mutation's on-canvas hit-region (cx,cy,r)
+   in BOTH scene A and scene B coordinate space so taps in
+   either panel can be checked.
+   ========================================================= */
+
+var VB = {w:300, h:220}; // shared viewBox size for every scene
+
+/* ---------- helper to render a shape list to SVG markup ---------- */
+function shapeToSVG(s){
+  switch(s.type){
+    case "circle":
+      return '<circle cx="'+s.cx+'" cy="'+s.cy+'" r="'+s.r+'" fill="'+s.fill+'"'+(s.stroke?' stroke="'+s.stroke+'" stroke-width="'+(s.sw||2)+'"':'')+(s.opacity!==undefined?' opacity="'+s.opacity+'"':'')+'/>';
+    case "rect":
+      return '<rect x="'+s.x+'" y="'+s.y+'" width="'+s.w+'" height="'+s.h+'" rx="'+(s.rx||0)+'" fill="'+s.fill+'"'+(s.opacity!==undefined?' opacity="'+s.opacity+'"':'')+'/>';
+    case "ellipse":
+      return '<ellipse cx="'+s.cx+'" cy="'+s.cy+'" rx="'+s.rx+'" ry="'+s.ry+'" fill="'+s.fill+'"'+(s.opacity!==undefined?' opacity="'+s.opacity+'"':'')+'/>';
+    case "polygon":
+      return '<polygon points="'+s.points+'" fill="'+s.fill+'"'+(s.opacity!==undefined?' opacity="'+s.opacity+'"':'')+'/>';
+    case "text":
+      return '<text x="'+s.x+'" y="'+s.y+'" font-size="'+s.size+'" fill="'+s.fill+'" text-anchor="middle">'+s.text+'</text>';
+    case "path":
+      return '<path d="'+s.d+'" fill="'+s.fill+'"'+(s.opacity!==undefined?' opacity="'+s.opacity+'"':'')+'/>';
+    default: return '';
+  }
+}
+
+function renderScene(shapes, bg){
+  var body = shapes.map(shapeToSVG).join('');
+  return '<svg viewBox="0 0 '+VB.w+' '+VB.h+'" xmlns="http://www.w3.org/2000/svg">' +
+    '<rect x="0" y="0" width="'+VB.w+'" height="'+VB.h+'" fill="'+bg+'"/>' +
+    body + '</svg>';
+}
+
+/* ---------- deep clone helper ---------- */
+function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
+function rand(min,max){ return Math.random()*(max-min)+min; }
+function randInt(min,max){ return Math.floor(rand(min,max+1)); }
+function pick(arr){ return arr[randInt(0,arr.length-1)]; }
+
+/* =========================================================
+   SCENE DEFINITIONS
+   Each returns { bg, shapes: [...] } — a fresh base scene.
+   Each shape has an "id" so mutations can target it.
+   ========================================================= */
+var SCENE_BUILDERS = [
+
+  // ---- Scene 1: Sunny park ----
+  function(){
+    return {
+      bg:"#BEE7FA",
+      shapes:[
+        {id:"sun", type:"circle", cx:250, cy:40, r:26, fill:"#FFD166"},
+        {id:"cloud1", type:"ellipse", cx:60, cy:35, rx:26, ry:14, fill:"#FFFFFF"},
+        {id:"cloud2", type:"ellipse", cx:85, cy:30, rx:20, ry:12, fill:"#FFFFFF"},
+        {id:"ground", type:"rect", x:0, y:160, w:300, h:60, fill:"#8FD68A"},
+        {id:"tree-trunk", type:"rect", x:40, y:120, w:12, h:45, fill:"#8B5A2B"},
+        {id:"tree-top", type:"circle", cx:46, cy:105, r:30, fill:"#3FA34D"},
+        {id:"tree2-trunk", type:"rect", x:230, y:130, w:10, h:35, fill:"#8B5A2B"},
+        {id:"tree2-top", type:"circle", cx:235, cy:118, r:24, fill:"#4CB85C"},
+        {id:"flower1", type:"circle", cx:120, cy:180, r:7, fill:"#FF6B6B"},
+        {id:"flower2", type:"circle", cx:145, cy:190, r:7, fill:"#F07EAA"},
+        {id:"flower3", type:"circle", cx:170, cy:182, r:7, fill:"#845EF7"},
+        {id:"bird", type:"path", d:"M150,60 Q158,50 166,60 Q158,55 150,60", fill:"#2D2A3E"},
+        {id:"house-body", type:"rect", x:180, y:140, w:44, h:38, fill:"#F4793C"},
+        {id:"house-roof", type:"polygon", points:"175,140 202,115 229,140", fill:"#862E2E"},
+        {id:"house-door", type:"rect", x:195, y:158, w:14, h:20, fill:"#5A3418"}
+      ]
+    };
+  },
+
+  // ---- Scene 2: Under the sea ----
+  function(){
+    return {
+      bg:"#4AB8D8",
+      shapes:[
+        {id:"sand", type:"rect", x:0, y:180, w:300, h:40, fill:"#F0D9A0"},
+        {id:"fish1-body", type:"ellipse", cx:80, cy:70, rx:24, ry:14, fill:"#FF9F45"},
+        {id:"fish1-tail", type:"polygon", points:"56,70 40,58 40,82", fill:"#FF9F45"},
+        {id:"fish2-body", type:"ellipse", cx:200, cy:110, rx:20, ry:12, fill:"#F07EAA"},
+        {id:"fish2-tail", type:"polygon", points:"220,110 236,100 236,120", fill:"#F07EAA"},
+        {id:"seaweed1", type:"path", d:"M50,220 Q60,180 50,150 Q40,180 50,220", fill:"#2E8B57"},
+        {id:"seaweed2", type:"path", d:"M240,220 Q250,175 240,140 Q230,175 240,220", fill:"#2E8B57"},
+        {id:"bubble1", type:"circle", cx:150, cy:40, r:6, fill:"#FFFFFF", opacity:0.7},
+        {id:"bubble2", type:"circle", cx:165, cy:60, r:4, fill:"#FFFFFF", opacity:0.7},
+        {id:"starfish", type:"polygon", points:"260,190 265,175 270,190 285,192 273,202 277,217 260,208 243,217 247,202 235,192 250,190", fill:"#FFD166"},
+        {id:"shell", type:"ellipse", cx:110, cy:200, rx:14, ry:9, fill:"#FF9AA2"},
+        {id:"sun-ray", type:"circle", cx:30, cy:25, r:16, fill:"#FFF3BF", opacity:0.8}
+      ]
+    };
+  },
+
+  // ---- Scene 3: Space scene ----
+  function(){
+    return {
+      bg:"#1B1B3A",
+      shapes:[
+        {id:"star1", type:"circle", cx:40, cy:30, r:2.5, fill:"#FFFFFF"},
+        {id:"star2", type:"circle", cx:90, cy:60, r:2, fill:"#FFFFFF"},
+        {id:"star3", type:"circle", cx:260, cy:35, r:2.5, fill:"#FFFFFF"},
+        {id:"star4", type:"circle", cx:200, cy:20, r:2, fill:"#FFFFFF"},
+        {id:"star5", type:"circle", cx:30, cy:130, r:2, fill:"#FFFFFF"},
+        {id:"planet", type:"circle", cx:230, cy:150, r:34, fill:"#F4793C"},
+        {id:"planet-ring", type:"ellipse", cx:230, cy:150, rx:52, ry:12, fill:"none"},
+        {id:"moon", type:"circle", cx:60, cy:80, r:20, fill:"#D9D9E8"},
+        {id:"rocket-body", type:"rect", x:130, y:120, w:20, h:50, rx:8, fill:"#E63946"},
+        {id:"rocket-window", type:"circle", cx:140, cy:135, r:6, fill:"#4AB8D8"},
+        {id:"rocket-fin1", type:"polygon", points:"130,170 118,190 130,182", fill:"#845EF7"},
+        {id:"rocket-fin2", type:"polygon", points:"150,170 162,190 150,182", fill:"#845EF7"},
+        {id:"astronaut", type:"circle", cx:90, cy:180, r:14, fill:"#FFFFFF"}
+      ]
+    };
+  }
+];
+
+/* =========================================================
+   MUTATION ENGINE
+   Given a scene's shapes, produce N mutated copies for scene B.
+   Each mutation returns { shapes (already mutated), spots: [{cx,cy,r}] }
+   spots are in the SAME coordinate space as VB (0..300, 0..220)
+   so both panels can share the tappable-region math.
+   ========================================================= */
+
+var MUT_COUNT = {easy:3, medium:5, hard:7};
+
+var COLOR_SWAPS = ["#FF6B6B","#845EF7","#FFD166","#36C48A","#15AABF","#F07EAA","#F4793C","#2DC653","#E63946","#1D7FBF"];
+
+function applyMutations(baseShapes, count){
+  var shapes = clone(baseShapes);
+  var spots = [];
+  var usedIds = {};
+
+  // build list of mutation-candidate indices (skip background-ish large rects like ground/sand if too big to be a fun "spot")
+  var candidates = shapes.map(function(s,i){return i;});
+  candidates = shuffle(candidates);
+
+  var attempts = 0;
+  while(spots.length < count && attempts < candidates.length){
+    var idx = candidates[attempts];
+    attempts++;
+    var s = shapes[idx];
+    if(usedIds[s.id]) continue;
+
+    var mutType = randInt(0,3);
+    var cx, cy, r;
+
+    if(mutType === 0){
+      // color change
+      var newColor = pick(COLOR_SWAPS);
+      if(newColor === s.fill) continue;
+      s.fill = newColor;
+    } else if(mutType === 1){
+      // size change (circles/ellipses)
+      if(s.type === "circle" && s.r !== undefined){
+        s.r = s.r * (Math.random()<0.5 ? 0.6 : 1.4);
+      } else if(s.type === "ellipse"){
+        s.rx = s.rx * 1.3; s.ry = s.ry * 1.3;
+      } else if(s.type === "rect"){
+        s.h = s.h * 1.3;
+      } else {
+        continue;
+      }
+    } else if(mutType === 2){
+      // position shift
+      if(s.cx !== undefined){ s.cx += rand(-18,18); }
+      else if(s.x !== undefined){ s.x += rand(-18,18); }
+      else { continue; }
+    } else {
+      // opacity / disappear (only for small decorative shapes)
+      if(["circle","ellipse"].indexOf(s.type) !== -1 && (s.r||s.rx) < 20){
+        s.opacity = 0;
+      } else {
+        continue;
+      }
+    }
+
+    usedIds[s.id] = true;
+
+    // compute a generous hit-region around the shape center
+    if(s.cx !== undefined){ cx = s.cx; cy = s.cy; r = Math.max(s.r||14, s.rx||14, 16) + 10; }
+    else if(s.x !== undefined){ cx = s.x + (s.w||20)/2; cy = s.y + (s.h||20)/2; r = Math.max(s.w||20, s.h||20)/2 + 12; }
+    else { cx = VB.w/2; cy = VB.h/2; r = 20; }
+
+    spots.push({cx:cx, cy:cy, r:r});
+  }
+
+  return {shapes: shapes, spots: spots};
+}
+
+function shuffle(a){return a.slice().sort(function(){return Math.random()-.5;});}
+
+/* =========================================================
+   GAME STATE / FLOW
+   ========================================================= */
+var TOTAL_ROUNDS = 5, MLIVES = 3;
+var BONUS = {easy:10, medium:15, hard:20};
+var LABEL = {easy:"Easy", medium:"Medium", hard:"Hard"};
+
+var diff="easy", roundNum=0, score=0, lives=0, locked=false;
+var currentSpots=[], foundFlags=[], sceneAWrap, sceneBWrap;
+
+function $(id){return document.getElementById(id);}
+var fbEl=$("feedback");
+var svEl=$("sv"), fvEl=$("fv"), lvEl=$("lv");
+var pbEl=$("pb"), plEl=$("pl"), lbEl=$("lb");
+var ssEl=$("ss"), rsEl=$("rs"), nextBtn=$("next-btn"), trackerEl=$("found-tracker");
+sceneAWrap = $("scene-a-wrap");
+sceneBWrap = $("scene-b-wrap");
+
+document.querySelectorAll(".db").forEach(function(b){
+  b.addEventListener("click",function(){
+    document.querySelectorAll(".db").forEach(function(x){x.classList.remove("on");});
+    b.classList.add("on");
+    diff=b.getAttribute("data-d");
+  });
+});
+$("startBtn").addEventListener("click", startGame);
+$("againBtn").addEventListener("click", function(){
+  rsEl.classList.remove("on");
+  ssEl.classList.add("on");
+});
+nextBtn.addEventListener("click", nextRound);
+
+function startGame(){
+  ssEl.classList.remove("on");
+  score=0; lives=MLIVES; roundNum=0;
+  lbEl.textContent = LABEL[diff];
+  updateHUD();
+  nextRound();
+}
+
+function nextRound(){
+  locked = false;
+  fbEl.textContent = ""; fbEl.className = "";
+  nextBtn.classList.remove("show");
+
+  if(roundNum >= TOTAL_ROUNDS || lives <= 0){ endGame(); return; }
+  roundNum++;
+  pbEl.style.width = ((roundNum-1)/TOTAL_ROUNDS*100) + "%";
+  plEl.textContent = "Round " + roundNum + " of " + TOTAL_ROUNDS;
+
+  var builder = pick(SCENE_BUILDERS);
+  var base = builder();
+  var count = MUT_COUNT[diff];
+  var result = applyMutations(base.shapes, count);
+
+  currentSpots = result.spots;
+  foundFlags = currentSpots.map(function(){ return false; });
+
+  sceneAWrap.innerHTML = renderScene(base.shapes, base.bg);
+  sceneBWrap.innerHTML = renderScene(result.shapes, base.bg);
+
+  attachTapHandler(sceneAWrap);
+  attachTapHandler(sceneBWrap);
+
+  buildTracker();
+  updateHUD();
+}
+
+function buildTracker(){
+  trackerEl.innerHTML = "";
+  currentSpots.forEach(function(){
+    var dot = document.createElement("div");
+    dot.className = "found-dot";
+    trackerEl.appendChild(dot);
+  });
+}
+
+function attachTapHandler(wrap){
+  var svg = wrap.querySelector("svg");
+  svg.addEventListener("click", function(e){
+    if(locked) return;
+    var rect = svg.getBoundingClientRect();
+    var scaleX = VB.w / rect.width;
+    var scaleY = VB.h / rect.height;
+    var x = (e.clientX - rect.left) * scaleX;
+    var y = (e.clientY - rect.top) * scaleY;
+    handleTap(x, y, e.clientX, e.clientY, wrap);
+  });
+}
+
+function handleTap(x, y, clientX, clientY, wrap){
+  var hitIndex = -1;
+  for(var i=0;i<currentSpots.length;i++){
+    if(foundFlags[i]) continue;
+    var s = currentSpots[i];
+    var dx = x - s.cx, dy = y - s.cy;
+    if(Math.sqrt(dx*dx+dy*dy) <= s.r){ hitIndex = i; break; }
+  }
+
+  var localRect = wrap.getBoundingClientRect();
+  var localX = clientX - localRect.left;
+  var localY = clientY - localRect.top;
+
+  if(hitIndex !== -1){
+    foundFlags[hitIndex] = true;
+    placeMarker(wrap, localX, localY, true);
+    // mirror marker on the other panel too, roughly (visual feedback only)
+    markFoundDot(hitIndex);
+
+    var foundCount = foundFlags.filter(Boolean).length;
+    fvEl.textContent = foundCount;
+
+    var pts = BONUS[diff];
+    score += pts;
+    fbEl.textContent = "Found it! +" + pts + " pts (" + foundCount + "/" + currentSpots.length + ")";
+    fbEl.className = "g";
+    updateHUD();
+    burstAt(clientX, clientY);
+
+    if(foundCount === currentSpots.length){
+      locked = true;
+      fbEl.textContent = "All differences found! \u2728";
+      if(roundNum >= TOTAL_ROUNDS){
+        setTimeout(endGame, 1000);
+      } else {
+        nextBtn.classList.add("show");
+      }
+    }
+  } else {
+    placeMarker(wrap, localX, localY, false);
+    lives--;
+    fbEl.textContent = "Not there - keep looking!";
+    fbEl.className = "b";
+    updateHUD();
+    if(lives<=0){
+      locked = true;
+      setTimeout(endGame, 900);
+    }
+  }
+}
+
+function placeMarker(wrap, x, y, correct){
+  var el = document.createElement("div");
+  if(correct){
+    el.className = "marker";
+    el.style.width = "34px"; el.style.height = "34px";
+    el.style.left = (x-17)+"px"; el.style.top = (y-17)+"px";
+  } else {
+    el.className = "miss-flash";
+    el.style.width = "24px"; el.style.height = "24px";
+    el.style.left = (x-12)+"px"; el.style.top = (y-12)+"px";
+    setTimeout(function(){ el.remove(); }, 500);
+  }
+  wrap.appendChild(el);
+}
+
+function markFoundDot(index){
+  var dots = trackerEl.querySelectorAll(".found-dot");
+  if(dots[index]) dots[index].classList.add("hit");
+}
+
+function endGame(){
+  pbEl.style.width = "100%";
+  var maxScore = TOTAL_ROUNDS * MUT_COUNT[diff] * BONUS[diff];
+  var pct = score / maxScore;
+  var stars = pct >= .8 ? 3 : pct >= .5 ? 2 : 1;
+  var ss=""; for(var i=0;i<3;i++) ss += i<stars ? "\u2B50" : "\u2606";
+
+  $("re").textContent = stars===3 ? "\uD83C\uDFC6" : stars===2 ? "\uD83D\uDE0A" : "\uD83D\uDE05";
+  $("rt").textContent = lives<=0 ? "Out of Lives!" : "Sharp Eyes!";
+  $("rst").textContent = ss;
+  $("rsc").textContent = score + " pts";
+  $("rm").textContent = stars===3 ? "Incredible! You spotted everything!" :
+    stars===2 ? "Nice work! Try again for a perfect score!" :
+    "Keep practising your spotting skills!";
+  rsEl.classList.add("on");
+  if(stars===3) setTimeout(function(){ bigBurst(); }, 200);
+}
+
+function updateHUD(){
+  svEl.textContent = score;
+  var foundCount = foundFlags.filter(Boolean).length;
+  fvEl.textContent = foundCount;
+  var h=""; for(var i=0;i<MLIVES;i++) h += i<lives ? "\u2764\uFE0F" : "\uD83D\uDDA4";
+  lvEl.textContent = h;
+}
+
+/* ---------- confetti ---------- */
+var canvas=$("cc"), ctx=canvas.getContext("2d"), parts=[], rid=null;
+function resize(){canvas.width=innerWidth;canvas.height=innerHeight;}
+window.addEventListener("resize",resize); resize();
+var PCOLS=["#FF6B6B","#845EF7","#FFD166","#36C48A","#15AABF","#F07EAA","#F4793C"];
+
+function burstAt(x,y){ spawn(16, x, y); }
+function bigBurst(){ spawn(120, innerWidth/2, 0); }
+function spawn(n,x,y){
+  for(var i=0;i<n;i++){
+    var a=Math.random()*Math.PI*2, s=2+Math.random()*5;
+    parts.push({x:x,y:y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-(y===0?0:3),
+      c:PCOLS[Math.floor(Math.random()*PCOLS.length)],
+      sz:6+Math.random()*8,r:Math.random()*360,rv:(Math.random()-.5)*8,l:1});
+  }
+  if(!rid) draw();
+}
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  parts.forEach(function(p){
+    p.x+=p.vx; p.y+=p.vy; p.vy+=.12; p.vx*=.99; p.r+=p.rv; p.l-=.014;
+    ctx.save(); ctx.globalAlpha=Math.max(0,p.l);
+    ctx.translate(p.x,p.y); ctx.rotate(p.r*Math.PI/180);
+    ctx.fillStyle=p.c; ctx.fillRect(-p.sz/2,-p.sz/4,p.sz,p.sz/2);
+    ctx.restore();
+  });
+  parts=parts.filter(function(p){return p.l>0 && p.y<canvas.height+40;});
+  rid = parts.length ? requestAnimationFrame(draw) : null;
+}
+</script>
+</body>
+</html>
