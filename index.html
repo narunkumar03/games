@@ -62,6 +62,8 @@ body{display:flex}
 .nav-link.game4 .ic{background:#FFE9CC}
 .nav-link.game5 .ic{background:#D9F0FF}
 .nav-link.game6 .ic{background:#E8F5D0}
+.nav-link.game7 .ic{background:#FFE0EC}
+.nav-link.game8 .ic{background:#FFE8D6}
 
 .nav-link.active{border-color:var(--purple);background:#F3F0FA}
 .nav-link.active.home{border-color:var(--yellow)}
@@ -70,6 +72,8 @@ body{display:flex}
 .nav-link.active.game4{border-color:#F4793C}
 .nav-link.active.game5{border-color:#15AABF}
 .nav-link.active.game6{border-color:#74C417}
+.nav-link.active.game7{border-color:#F07EAA}
+.nav-link.active.game8{border-color:#FF9F45}
 
 #nav-divider{
   font-size:.68rem;font-weight:900;color:var(--muted);
@@ -142,6 +146,8 @@ body{display:flex}
 .gc4 .gc-top{background:linear-gradient(160deg,#FFF0DB,#FFE0C2)}
 .gc5 .gc-top{background:linear-gradient(160deg,#E0F5FF,#C7EBFF)}
 .gc6 .gc-top{background:linear-gradient(160deg,#F0F9E0,#DCF2C0)}
+.gc7 .gc-top{background:linear-gradient(160deg,#FFF0F5,#FFDCEA)}
+.gc8 .gc-top{background:linear-gradient(160deg,#FFF3E8,#FFE0C7)}
 .gc-top h2{font-size:1.3rem;font-weight:900;margin-top:4px}
 .gc-badge{display:inline-block;font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em;padding:4px 10px;border-radius:99px;margin-top:6px}
 .gc1 .gc-badge{background:#FFD166;color:#7c5a00}
@@ -150,6 +156,8 @@ body{display:flex}
 .gc4 .gc-badge{background:#FFCC99;color:#8a4400}
 .gc5 .gc-badge{background:#A8E0FF;color:#00546b}
 .gc6 .gc-badge{background:#D0EBA0;color:#4a6b0d}
+.gc7 .gc-badge{background:#FFC2DC;color:#8a1a4d}
+.gc8 .gc-badge{background:#FFCBA0;color:#8a4400}
 .gc-body{padding:14px 22px 22px;flex:1;display:flex;flex-direction:column}
 .gc-body p{color:var(--muted);font-size:.9rem;line-height:1.5;margin-bottom:14px;flex:1}
 .gc-skills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
@@ -237,6 +245,14 @@ body{display:flex}
     <li><a class="nav-link game6" data-target="find-difference.html" data-title="Find the Difference">
       <span class="ic">&#128269;</span>
       <span class="txt">Find the Difference<small>Spot &amp; Tap</small></span>
+    </a></li>
+    <li><a class="nav-link game7" data-target="picture-puzzle.html" data-title="Picture Puzzle">
+      <span class="ic">&#129513;</span>
+      <span class="txt">Picture Puzzle<small>Beat the Clock</small></span>
+    </a></li>
+    <li><a class="nav-link game8" data-target="body-part-sounds.html" data-title="Body Part Sounds">
+      <span class="ic">&#128066;</span>
+      <span class="txt">Body Part Sounds<small>Listen &amp; Tap</small></span>
     </a></li>
   </ul>
 
@@ -360,6 +376,40 @@ body{display:flex}
             <span class="gc-skill">Visual attention</span>
             <span class="gc-skill">Focus</span>
             <span class="gc-skill">Detail spotting</span>
+          </div>
+          <div class="gc-play">Play Now &#9654;</div>
+        </div>
+      </button>
+
+      <button class="game-card gc7" data-target="picture-puzzle.html" data-title="Picture Puzzle">
+        <div class="gc-top">
+          <span class="icon">&#129513;</span>
+          <h2>Picture Puzzle</h2>
+          <span class="gc-badge">Beat the Clock</span>
+        </div>
+        <div class="gc-body">
+          <p>Tap two tiles to swap them and rebuild the scrambled picture before the 45-second timer runs out!</p>
+          <div class="gc-skills">
+            <span class="gc-skill">Spatial reasoning</span>
+            <span class="gc-skill">Planning</span>
+            <span class="gc-skill">Speed under pressure</span>
+          </div>
+          <div class="gc-play">Play Now &#9654;</div>
+        </div>
+      </button>
+
+      <button class="game-card gc8" data-target="body-part-sounds.html" data-title="Body Part Sounds">
+        <div class="gc-top">
+          <span class="icon">&#128066;</span>
+          <h2>Body Part Sounds</h2>
+          <span class="gc-badge">Listen &amp; Tap</span>
+        </div>
+        <div class="gc-body">
+          <p>Listen to the spoken word, then tap the matching body part picture out of six choices!</p>
+          <div class="gc-skills">
+            <span class="gc-skill">Listening skills</span>
+            <span class="gc-skill">Body awareness</span>
+            <span class="gc-skill">Vocabulary</span>
           </div>
           <div class="gc-play">Play Now &#9654;</div>
         </div>

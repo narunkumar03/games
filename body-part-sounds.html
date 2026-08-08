@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Body Part Sounds - Kids Game</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FFF8F0;--panel:#FFFFFF;--ink:#2D2A3E;--muted:#7B7599;
+  --accent:#FF6B6B;--green:#36C48A;--yellow:#FFD166;--purple:#845EF7;
+  --radius:20px;--shadow:0 8px 32px rgba(45,42,62,.12);
+}
+html,body{height:100%;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink);overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+#cc{position:fixed;inset:0;pointer-events:none;z-index:999}
+header{text-align:center;padding:22px 16px 0}
+header h1{font-size:clamp(1.7rem,6vw,2.8rem);font-weight:900;background:linear-gradient(135deg,#FF6B6B,#845EF7,#36C48A);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+header p{color:var(--muted);font-size:1rem;margin-top:4px}
+
+#scorebar{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;padding:14px 16px 0}
+.stat{background:var(--panel);border-radius:14px;padding:8px 18px;box-shadow:var(--shadow);text-align:center;min-width:76px}
+.stat .val{font-size:1.45rem;font-weight:900;line-height:1}
+.stat .lbl{font-size:.7rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+#sv{color:#FF6B6B}#tv{color:#845EF7}#lv{color:#36C48A}
+
+#gc{max-width:620px;margin:18px auto;background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px 20px 26px;text-align:center}
+#lb{display:inline-block;background:#FFD166;color:var(--ink);font-size:.75rem;font-weight:900;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:99px;margin-bottom:14px}
+
+/* listen prompt */
+#listen-card{
+  background:linear-gradient(135deg,#F3F0FA,#EDE7FB);
+  border-radius:18px;padding:26px 20px;margin-bottom:22px;
+}
+#listen-icon{
+  width:84px;height:84px;border-radius:50%;
+  background:linear-gradient(135deg,#845EF7,#FF6B6B);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 14px;cursor:pointer;
+  box-shadow:0 8px 20px rgba(132,94,247,.35);
+  transition:transform .15s;
+  font-size:2.2rem;
+}
+#listen-icon:hover{transform:scale(1.08)}
+#listen-icon.speaking{animation:speakPulse .6s infinite}
+@keyframes speakPulse{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.1)}
+}
+#listen-text{font-size:.95rem;color:var(--muted);font-weight:700}
+#replay-btn{
+  margin-top:10px;background:none;border:2px dashed var(--purple);color:var(--purple);
+  font-family:Arial,sans-serif;font-weight:800;font-size:.85rem;
+  padding:8px 18px;border-radius:10px;cursor:pointer;
+  transition:background .15s;
+}
+#replay-btn:hover{background:#F3F0FA}
+
+/* body part image grid */
+#parts-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:8px;
+}
+.part-card{
+  background:#F9F8FD;border:3px solid #EDE9F6;border-radius:16px;
+  padding:14px 8px 10px;cursor:pointer;
+  transition:transform .15s,border-color .15s,background .15s;
+}
+.part-card:hover:not(.disabled){transform:translateY(-3px);border-color:#D6C7FF;background:#F3F0FA}
+.part-card.disabled{cursor:default;opacity:.5}
+.part-card svg{width:100%;height:84px;display:block;margin-bottom:6px}
+.part-card .part-name{font-size:.72rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+.part-card.correct{border-color:var(--green);background:#EAFBF2;animation:cardPop .4s ease}
+.part-card.wrong{border-color:var(--accent);background:#FFEAEA;animation:cardShake .4s ease}
+@keyframes cardPop{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.08)}
+  100%{transform:scale(1)}
+}
+@keyframes cardShake{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-6px)}
+  75%{transform:translateX(6px)}
+}
+
+#feedback{margin-top:18px;font-size:1.1rem;font-weight:800;min-height:1.7em}
+#feedback.g{color:var(--green)}#feedback.b{color:var(--accent)}
+
+#pw{margin-top:14px;background:#EDE9F6;border-radius:99px;height:10px;overflow:hidden}
+#pb{height:100%;background:linear-gradient(90deg,#845EF7,#FF6B6B);border-radius:99px;transition:width .4s ease;width:0%}
+#pl{font-size:.78rem;color:var(--muted);margin-top:6px;font-weight:700}
+
+.ov{display:none;position:fixed;inset:0;background:rgba(45,42,62,.6);z-index:100;align-items:center;justify-content:center;padding:16px}
+.ov.on{display:flex}
+.ob{background:var(--panel);border-radius:24px;padding:36px 30px;max-width:400px;width:100%;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.22)}
+.ob h2{font-size:1.9rem;font-weight:900;margin-bottom:8px}
+.ob p{color:var(--muted);font-size:1rem;margin-bottom:18px}
+.em{font-size:3.6rem;display:block;margin-bottom:10px}
+.bp{display:inline-block;background:linear-gradient(135deg,#845EF7,#FF6B6B);color:#fff;font-family:Arial,sans-serif;font-size:1.05rem;font-weight:900;padding:13px 34px;border-radius:14px;border:none;cursor:pointer;box-shadow:0 6px 20px rgba(132,94,247,.35);transition:transform .15s}
+.bp:hover{transform:translateY(-2px)}
+#rsc{font-size:2.2rem;font-weight:900;color:#FF6B6B}
+#rst{font-size:1.9rem;letter-spacing:4px;margin:6px 0 10px}
+.dbs{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:22px}
+.db{padding:9px 20px;border-radius:12px;border:3px solid transparent;font-family:Arial,sans-serif;font-weight:800;font-size:.9rem;cursor:pointer;transition:transform .15s}
+.db:hover{transform:scale(1.06)}
+.db.on{border-color:#845EF7}
+.de{background:#D3F9D8;color:#2b7a3b}
+.dm{background:#FFF3BF;color:#7c5a00}
+.dh{background:#FFE3E3;color:#9b0000}
+#no-speech-note{font-size:.78rem;color:var(--accent);margin-top:10px;display:none}
+#no-speech-note.show{display:block}
+
+@media(max-width:480px){
+  #parts-grid{grid-template-columns:repeat(2,1fr)}
+  .part-card svg{height:72px}
+}
+</style>
+</head>
+<body>
+<canvas id="cc"></canvas>
+
+<div class="ov on" id="ss">
+  <div class="ob">
+    <span class="em">&#128066;</span>
+    <h2>Body Part Sounds!</h2>
+    <p>Listen to the word, then tap the matching body part picture!</p>
+    <div class="dbs">
+      <button class="db de on" data-d="easy">&#128522; Easy</button>
+      <button class="db dm" data-d="medium">&#128526; Medium</button>
+      <button class="db dh" data-d="hard">&#128293; Hard</button>
+    </div>
+    <button class="bp" id="startBtn">Let's Play! &#128640;</button>
+    <div id="no-speech-note">Note: your browser doesn't support spoken audio, so the word will be shown as text instead.</div>
+  </div>
+</div>
+
+<div class="ov" id="rs">
+  <div class="ob">
+    <span class="em" id="re">&#127942;</span>
+    <h2 id="rt">Round Over!</h2>
+    <div id="rst">&#11088;&#11088;&#11088;</div>
+    <div id="rsc">0 pts</div>
+    <p id="rm">Great job!</p>
+    <br>
+    <button class="bp" id="againBtn">Play Again &#128260;</button>
+  </div>
+</div>
+
+<header>
+  <h1>&#128066; Body Part Sounds</h1>
+  <p>Listen carefully and tap the right body part!</p>
+</header>
+
+<div id="scorebar">
+  <div class="stat"><div class="val" id="sv">0</div><div class="lbl">Score</div></div>
+  <div class="stat"><div class="val" id="tv">0</div><div class="lbl">Streak</div></div>
+  <div class="stat"><div class="val" id="lv">&#10084;&#10084;&#10084;</div><div class="lbl">Lives</div></div>
+</div>
+
+<div id="gc">
+  <div id="lb">Easy</div>
+
+  <div id="listen-card">
+    <div id="listen-icon">&#128266;</div>
+    <div id="listen-text">Tap to hear the word</div>
+    <button id="replay-btn">&#128257; Play Again</button>
+  </div>
+
+  <div id="parts-grid"></div>
+  <div id="feedback"></div>
+
+  <div id="pw"><div id="pb"></div></div>
+  <div id="pl">Round 1 of 8</div>
+</div>
+
+<script>
+/* =========================================================
+   BODY PART LIBRARY
+   Each part has a spoken word + a simple SVG face/head icon
+   with that part highlighted, so kids visually recognize it.
+   ========================================================= */
+var PARTS = {
+  eyes:   {label:"Eyes",   speak:"eyes"},
+  nose:   {label:"Nose",   speak:"nose"},
+  mouth:  {label:"Mouth",  speak:"mouth"},
+  ears:   {label:"Ears",   speak:"ears"},
+  teeth:  {label:"Teeth",  speak:"teeth"},
+  tongue: {label:"Tongue", speak:"tongue"},
+  hair:   {label:"Hair",   speak:"hair"},
+  eyebrows:{label:"Eyebrows", speak:"eyebrows"},
+  cheeks: {label:"Cheeks", speak:"cheeks"},
+  chin:   {label:"Chin",   speak:"chin"}
+};
+
+/* Each body part is drawn as its own isolated, zoomed-in illustration -
+   not a highlighted region of a full face - so kids see a clear,
+   unambiguous picture for each word with no guessing involved. */
+function partSVG(key){
+  var skin = "#FFD9B3";
+  var draws = {
+
+    eyes: function(){
+      return [
+        '<circle cx="30" cy="50" r="16" fill="#fff" stroke="#E8C9A8" stroke-width="2"/>',
+        '<circle cx="70" cy="50" r="16" fill="#fff" stroke="#E8C9A8" stroke-width="2"/>',
+        '<circle cx="30" cy="50" r="8" fill="#3B2E2A"/>',
+        '<circle cx="70" cy="50" r="8" fill="#3B2E2A"/>',
+        '<circle cx="27.5" cy="47" r="2.4" fill="#fff"/>',
+        '<circle cx="67.5" cy="47" r="2.4" fill="#fff"/>',
+        '<path d="M14,50 Q30,34 46,50" fill="none" stroke="#6B4226" stroke-width="3" stroke-linecap="round"/>',
+        '<path d="M54,50 Q70,34 86,50" fill="none" stroke="#6B4226" stroke-width="3" stroke-linecap="round"/>'
+      ].join('');
+    },
+
+    nose: function(){
+      return [
+        '<path d="M50,20 Q38,60 32,72 Q40,84 50,84 Q60,84 68,72 Q62,60 50,20 Z" fill="'+skin+'" stroke="#E8B48C" stroke-width="2"/>',
+        '<ellipse cx="42" cy="74" rx="5" ry="4" fill="#E8956B"/>',
+        '<ellipse cx="58" cy="74" rx="5" ry="4" fill="#E8956B"/>'
+      ].join('');
+    },
+
+    mouth: function(){
+      return [
+        '<path d="M18,50 Q50,80 82,50 Q50,64 18,50 Z" fill="#C0392B"/>',
+        '<path d="M22,50 Q50,42 78,50" fill="none" stroke="#8B2A1F" stroke-width="2" stroke-linecap="round"/>'
+      ].join('');
+    },
+
+    ears: function(){
+      return [
+        '<path d="M30,20 Q10,30 12,55 Q14,78 34,80 Q44,80 44,66 Q34,66 32,52 Q30,36 30,20 Z" fill="'+skin+'" stroke="#E8B48C" stroke-width="2"/>',
+        '<path d="M28,42 Q22,52 28,62" fill="none" stroke="#E8B48C" stroke-width="2.5" stroke-linecap="round"/>',
+        '<path d="M70,20 Q90,30 88,55 Q86,78 66,80 Q56,80 56,66 Q66,66 68,52 Q70,36 70,20 Z" fill="'+skin+'" stroke="#E8B48C" stroke-width="2"/>',
+        '<path d="M72,42 Q78,52 72,62" fill="none" stroke="#E8B48C" stroke-width="2.5" stroke-linecap="round"/>'
+      ].join('');
+    },
+
+    teeth: function(){
+      var out = ['<rect x="16" y="34" width="68" height="32" rx="10" fill="#fff" stroke="#E0D9D0" stroke-width="2"/>'];
+      for(var i=0;i<5;i++){
+        out.push('<line x1="'+(16+ (i+1)*(68/5))+'" y1="34" x2="'+(16+(i+1)*(68/5))+'" y2="66" stroke="#E0D9D0" stroke-width="1.5"/>');
+      }
+      out.push('<line x1="16" y1="50" x2="84" y2="50" stroke="#E0D9D0" stroke-width="1.5"/>');
+      return out.join('');
+    },
+
+    tongue: function(){
+      return [
+        '<path d="M20,30 Q50,20 80,30 Q84,60 50,86 Q16,60 20,30 Z" fill="#E8607A" stroke="#C94D66" stroke-width="2"/>',
+        '<line x1="50" y1="34" x2="50" y2="80" stroke="#C94D66" stroke-width="2" opacity="0.5"/>'
+      ].join('');
+    },
+
+    hair: function(){
+      return [
+        '<path d="M14,70 Q10,20 50,12 Q90,20 86,70 Q78,40 66,50 Q60,30 50,45 Q40,30 34,50 Q22,40 14,70 Z" fill="#6B4226"/>',
+        '<path d="M14,70 Q10,20 50,12 Q90,20 86,70" fill="none" stroke="#4A2C17" stroke-width="2" opacity="0.4"/>'
+      ].join('');
+    },
+
+    eyebrows: function(){
+      return [
+        '<path d="M12,55 Q30,32 48,52" fill="none" stroke="#6B4226" stroke-width="7" stroke-linecap="round"/>',
+        '<path d="M52,52 Q70,32 88,55" fill="none" stroke="#6B4226" stroke-width="7" stroke-linecap="round"/>'
+      ].join('');
+    },
+
+    cheeks: function(){
+      return [
+        '<ellipse cx="50" cy="50" rx="40" ry="36" fill="'+skin+'" opacity="0.3"/>',
+        '<circle cx="32" cy="52" r="18" fill="#FFB6A3"/>',
+        '<circle cx="68" cy="52" r="18" fill="#FFB6A3"/>',
+        '<circle cx="32" cy="52" r="18" fill="none" stroke="#FF9A82" stroke-width="1.5"/>',
+        '<circle cx="68" cy="52" r="18" fill="none" stroke="#FF9A82" stroke-width="1.5"/>'
+      ].join('');
+    },
+
+    chin: function(){
+      return [
+        '<path d="M20,20 Q20,70 50,86 Q80,70 80,20 Q50,34 20,20 Z" fill="'+skin+'" stroke="#E8B48C" stroke-width="2"/>',
+        '<ellipse cx="50" cy="72" rx="10" ry="6" fill="#E8B48C" opacity="0.5"/>'
+      ].join('');
+    }
+  };
+
+  var bg = "#F5EFE6";
+  var body = draws[key] ? draws[key]() : '';
+  return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
+    '<rect x="2" y="2" width="96" height="96" rx="14" fill="'+bg+'"/>' +
+    body + '</svg>';
+}
+
+var SETS = {
+  easy:   ["eyes","nose","mouth","ears","hair","teeth"],
+  medium: ["eyes","nose","mouth","ears","hair","teeth","tongue","eyebrows"],
+  hard:   ["eyes","nose","mouth","ears","hair","teeth","tongue","eyebrows","cheeks","chin"]
+};
+var CARD_COUNT = {easy:6, medium:6, hard:6};
+
+var TOTAL_ROUNDS = 8, MLIVES = 3;
+var BONUS = {easy:10, medium:15, hard:20};
+var LABEL = {easy:"Easy", medium:"Medium", hard:"Hard"};
+
+var diff="easy", roundNum=0, score=0, streak=0, lives=0, locked=false;
+var roundKeys=[], targetKey=null;
+var speechSupported = ("speechSynthesis" in window);
+
+function $(id){return document.getElementById(id);}
+var gridEl=$("parts-grid"), fbEl=$("feedback");
+var svEl=$("sv"), tvEl=$("tv"), lvEl=$("lv");
+var pbEl=$("pb"), plEl=$("pl"), lbEl=$("lb");
+var ssEl=$("ss"), rsEl=$("rs");
+var listenIcon=$("listen-icon"), listenText=$("listen-text"), replayBtn=$("replay-btn");
+
+if(!speechSupported){
+  $("no-speech-note").classList.add("show");
+}
+
+document.querySelectorAll(".db").forEach(function(b){
+  b.addEventListener("click",function(){
+    document.querySelectorAll(".db").forEach(function(x){x.classList.remove("on");});
+    b.classList.add("on");
+    diff=b.getAttribute("data-d");
+  });
+});
+$("startBtn").addEventListener("click", startGame);
+$("againBtn").addEventListener("click", function(){
+  rsEl.classList.remove("on");
+  ssEl.classList.add("on");
+});
+listenIcon.addEventListener("click", speakCurrent);
+replayBtn.addEventListener("click", speakCurrent);
+
+function shuffle(a){return a.slice().sort(function(){return Math.random()-.5;});}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+
+function startGame(){
+  ssEl.classList.remove("on");
+  score=0; streak=0; lives=MLIVES; roundNum=0;
+  lbEl.textContent = LABEL[diff];
+  updateHUD();
+  nextRound();
+}
+
+function nextRound(){
+  locked = false;
+  fbEl.textContent = ""; fbEl.className = "";
+
+  if(roundNum >= TOTAL_ROUNDS || lives <= 0){ endGame(); return; }
+  roundNum++;
+  pbEl.style.width = ((roundNum-1)/TOTAL_ROUNDS*100) + "%";
+  plEl.textContent = "Round " + roundNum + " of " + TOTAL_ROUNDS;
+
+  var pool = shuffle(SETS[diff]);
+  var count = Math.min(CARD_COUNT[diff], pool.length);
+  roundKeys = pool.slice(0, count);
+  targetKey = pick(roundKeys);
+
+  renderGrid();
+  listenText.textContent = "Tap to hear the word";
+
+  setTimeout(speakCurrent, 400);
+}
+
+function renderGrid(){
+  gridEl.innerHTML = "";
+  shuffle(roundKeys).forEach(function(key){
+    var card = document.createElement("div");
+    card.className = "part-card";
+    card.dataset.key = key;
+    card.innerHTML = partSVG(key) + '<div class="part-name">' + PARTS[key].label + '</div>';
+    card.addEventListener("click", function(){ handleGuess(card, key); });
+    gridEl.appendChild(card);
+  });
+}
+
+function speakCurrent(){
+  if(!targetKey) return;
+  var word = PARTS[targetKey].speak;
+
+  if(speechSupported){
+    try{
+      window.speechSynthesis.cancel();
+      var utter = new SpeechSynthesisUtterance(word);
+      utter.rate = 0.8;
+      utter.pitch = 1.15;
+      listenIcon.classList.add("speaking");
+      utter.onend = function(){ listenIcon.classList.remove("speaking"); };
+      utter.onerror = function(){ listenIcon.classList.remove("speaking"); };
+      window.speechSynthesis.speak(utter);
+    } catch(e){
+      listenIcon.classList.remove("speaking");
+    }
+  }
+  listenText.textContent = "Word: " + word.toUpperCase();
+}
+
+function handleGuess(card, key){
+  if(locked) return;
+  locked = true;
+
+  var correct = key === targetKey;
+
+  document.querySelectorAll(".part-card").forEach(function(c){
+    c.classList.add("disabled");
+    if(c.dataset.key === targetKey) c.classList.add("correct");
+    else if(c === card && !correct) c.classList.add("wrong");
+  });
+
+  if(correct){
+    streak++;
+    var bonus = Math.min(streak-1,4)*2;
+    var pts = BONUS[diff] + bonus;
+    score += pts;
+    fbEl.textContent = (streak>1 ? "Streak x"+streak+"! " : "") + "Correct! +" + pts + " pts";
+    fbEl.className = "g";
+    burst(card);
+  } else {
+    streak = 0;
+    lives--;
+    fbEl.textContent = "Not quite! That was the " + PARTS[targetKey].label + ".";
+    fbEl.className = "b";
+  }
+  updateHUD();
+  setTimeout(nextRound, 1600);
+}
+
+function endGame(){
+  pbEl.style.width = "100%";
+  var maxScore = TOTAL_ROUNDS * (BONUS[diff] + 8);
+  var pct = score / maxScore;
+  var stars = pct >= .8 ? 3 : pct >= .5 ? 2 : 1;
+  var ss=""; for(var i=0;i<3;i++) ss += i<stars ? "\u2B50" : "\u2606";
+
+  $("re").textContent = stars===3 ? "\uD83C\uDFC6" : stars===2 ? "\uD83D\uDE0A" : "\uD83D\uDE05";
+  $("rt").textContent = "Round Over!";
+  $("rst").textContent = ss;
+  $("rsc").textContent = score + " pts";
+  $("rm").textContent = stars===3 ? "Amazing! You know your body parts!" :
+    stars===2 ? "Nice work! Try again for a perfect score!" :
+    "Keep practising and listening carefully!";
+  rsEl.classList.add("on");
+  if(stars===3) setTimeout(bigBurst, 200);
+}
+
+function updateHUD(){
+  svEl.textContent = score;
+  tvEl.textContent = streak;
+  var h=""; for(var i=0;i<MLIVES;i++) h += i<lives ? "\u2764\uFE0F" : "\uD83D\uDDA4";
+  lvEl.textContent = h;
+}
+
+/* ---------- confetti ---------- */
+var canvas=$("cc"), ctx=canvas.getContext("2d"), parts=[], rid=null;
+function resize(){canvas.width=innerWidth;canvas.height=innerHeight;}
+window.addEventListener("resize",resize); resize();
+var PCOLS=["#FF6B6B","#845EF7","#FFD166","#36C48A","#15AABF","#F07EAA","#F4793C"];
+
+function burst(el){
+  var r = el.getBoundingClientRect();
+  spawn(16, r.left + r.width/2, r.top + r.height/2);
+}
+function bigBurst(){ spawn(120, innerWidth/2, 0); }
+function spawn(n,x,y){
+  for(var i=0;i<n;i++){
+    var a=Math.random()*Math.PI*2, s=2+Math.random()*5;
+    parts.push({x:x,y:y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-(y===0?0:3),
+      c:PCOLS[Math.floor(Math.random()*PCOLS.length)],
+      sz:6+Math.random()*8,r:Math.random()*360,rv:(Math.random()-.5)*8,l:1});
+  }
+  if(!rid) draw();
+}
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  parts.forEach(function(p){
+    p.x+=p.vx; p.y+=p.vy; p.vy+=.12; p.vx*=.99; p.r+=p.rv; p.l-=.014;
+    ctx.save(); ctx.globalAlpha=Math.max(0,p.l);
+    ctx.translate(p.x,p.y); ctx.rotate(p.r*Math.PI/180);
+    ctx.fillStyle=p.c; ctx.fillRect(-p.sz/2,-p.sz/4,p.sz,p.sz/2);
+    ctx.restore();
+  });
+  parts=parts.filter(function(p){return p.l>0 && p.y<canvas.height+40;});
+  rid = parts.length ? requestAnimationFrame(draw) : null;
+}
+</script>
+</body>
+</html>
